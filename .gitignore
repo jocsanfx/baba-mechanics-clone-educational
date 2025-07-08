@@ -1,0 +1,7 @@
+*.exe
+*.bin
+*.build
+build/
+bin/
+.vscode/
+*.json
