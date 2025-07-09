@@ -1,22 +1,82 @@
 21 36 64 64
 
-WIS-- #      #    #     -------             
-----  #      #    #    -------          
---    #         * #   -------         
--     #      #    #   -------           
-      # BIY  ######   -------
-      ##   ###        -------
-      #      $       -------
-      ########       -------
-      #R#           -------
-       I            -------
-       P           -------
-       L           ------- 
-                  -------
-       #BIN#      -------        &
-       #####     -------           
-       #LIH#     -------        FIW
-       #####     -------
-                -------
-                -------
-               -------
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+
+1
+02 17
+
+1
+06 14
+
+1
+13 33
+
+39
+00 06
+00 13
+00 18
+01 06
+01 13
+01 18
+02 06
+02 21
+03 06
+03 13
+03 18
+04 06
+04 13
+04 14
+04 15
+04 16
+04 17
+04 18
+05 06
+05 07
+05 11
+05 12
+05 13
+06 06
+07 06
+07 07
+07 08
+07 09
+07 10
+07 11
+07 12
+07 13
+08 06
+08 08
+13 07
+13 11
+14 07
+14 08
+14 09
+14 10
+14 11
+15 07
+15 11
+16 07
+16 08
+16 09
+16 10
+16 11
