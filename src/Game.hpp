@@ -56,6 +56,8 @@ class Game {
   int window_width = 0;
   int window_height = 0;
   int fps = 0;
+  float offsetX = 0;
+  float offsetY = 0;
 
   TileData tiles;
   LevelData level;
@@ -82,6 +84,8 @@ class Game {
   void drawTail(int id, int row, int col);
   void drawMap();
   void drawEntities();
+  // Aux
+  void adjustToFitScreen();
 };
 
 #endif // GAME_HPP

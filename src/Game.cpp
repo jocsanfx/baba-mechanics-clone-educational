@@ -3,8 +3,8 @@
 // Game handle
 void Game::init() {
   this->title = "Baba is you";
-  this->window_width = 500;
-  this->window_height = 500;
+  this->window_width = 800;
+  this->window_height = 800;
   this->fps = 60;
 
   InitWindow(this->window_width, this->window_height, this->title.c_str());
@@ -12,6 +12,7 @@ void Game::init() {
 
   this->loadTextures();
   this->loadLevel();
+  this->adjustToFitScreen();
 }
 
 void Game::run() {
@@ -45,8 +46,8 @@ void Game::drawTail(int id, int row, int col) {
   };
 
   Rectangle dst = {
-    static_cast<float>(col * this->level.cell_width),
-    static_cast<float>(row * this->level.cell_heigth),
+    this->offsetX + static_cast<float>(col * this->level.cell_width),
+    this->offsetY + static_cast<float>(row * this->level.cell_heigth),
     static_cast<float>(this->level.cell_width),
     static_cast<float>(this->level.cell_heigth)
   };
@@ -189,8 +190,22 @@ void Game::loadLevel() {
   input.close();
 
   this->loadTileIDs();
+  this->adjustToFitScreen();
+}
 
-  this->window_width = this->level.cols * this->level.cell_width;
-  this->window_height = this->level.rows * this->level.cell_heigth;
-  SetWindowSize(this->window_width, this->window_height);
+// Aux
+void Game::adjustToFitScreen() {
+  float scaleW = static_cast<float>(this->window_width) / (this->level.cols * this->tiles.width);
+  float scaleH = static_cast<float>(this->window_height) / (this->level.rows * this->tiles.height);
+
+  float finalScale = std::min(scaleW, scaleH);
+
+  this->level.cell_width = this->tiles.width * finalScale;
+  this->level.cell_heigth = this->tiles.height * finalScale;
+ 
+  float totalMapWidth = this->level.cols * this->level.cell_width;
+  float totalMapHeight = this->level.rows * this->level.cell_heigth;
+
+  this->offsetX = (this->window_width - totalMapWidth) / 2.0f;
+  this->offsetY = (this->window_height - totalMapHeight) / 2.0f;
 }
