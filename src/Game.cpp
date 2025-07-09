@@ -75,6 +75,10 @@ void Game::drawEntities() {
       id = this->level.tiles_id['$'];
     } else if (e.type == "flag") {
       id = this->level.tiles_id['&'];
+    } else if (e.type == "wall") {
+      id = this->level.tiles_id['#'];
+    } else if (e.type == "water") {
+      id = this->level.tiles_id['~'];
     }
 
     this->drawTail(id, e.pos.first, e.pos.second);
@@ -95,8 +99,20 @@ void Game::loadTextures() {
   this->tiles.height = 64;
 }
 
+void Game::loadTileIDs() {
+  std::ifstream idInput("./assets/data/tile_ids.txt");
+
+  char symbol;
+  int tileID;
+  while (idInput >> symbol >> tileID) {
+    this->level.tiles_id[symbol] = tileID;
+  }
+
+  idInput.close();
+}
+
 void Game::loadLevel() {
-  std::ifstream input("./assets/data/lvl0.txt");
+  std::ifstream input("./assets/data/lvl3.txt");
 
   input >> this->level.rows >> this->level.cols;
   input >> this->level.cell_width >> this->level.cell_heigth;
@@ -117,6 +133,7 @@ void Game::loadLevel() {
   int n, row, col;
   int entityId = 0;
 
+
   // Esta cargando con sistemas x que por el momento no hacen nada
 
   // --- Instrucciones ---
@@ -124,20 +141,14 @@ void Game::loadLevel() {
   for (int i = 0; i < n; ++i) {
     input >> row >> col;
     this->level.entities.push_back(Entity{
-      entityId++,
-      {row, col},
-      "instruction",
-      {{"isPush", true}}
+      entityId++, {row, col}, "instruction", {{"isPush", true}}
     });
   }
 
   // --- Jugador ---
   input >> row >> col;
   this->level.entities.push_back(Entity{
-    entityId++,
-    {row, col},
-    "player",
-    {{"isYou", true}}
+    entityId++, {row, col}, "player", {{"isYou", true}}
   });
 
   // --- Piedras ---
@@ -145,32 +156,48 @@ void Game::loadLevel() {
   for (int i = 0; i < n; ++i) {
     input >> row >> col;
     this->level.entities.push_back(Entity{
-      entityId++,
-      {row, col},
-      "rock",
-      {{"isPush", true}}
+      entityId++, {row, col}, "rock", {{"isPush", true}}
     });
   }
 
   // --- Bandera ---
-  input >> row >> col;
-  this->level.entities.push_back(Entity{
-    entityId++,
-    {row, col},
-    "flag",
-    {{"isWin", true}}
-  });
-
-  // --- Leyenda de símbolos ---
-  char symbol;
-  int tileID;
-  while (input >> symbol >> tileID) {
-    this->level.tiles_id[symbol] = tileID;
+  input >> n;
+  for (int i = 0; i < n; ++i) {
+    input >> row >> col;
+    this->level.entities.push_back(Entity{
+      entityId++, {row, col}, "flag", {{"isWin", true}}
+    });
   }
+
+  // --- Muros ---
+  input >> n;
+  for (int i = 0; i < n; ++i) {
+    input >> row >> col;
+    this->level.entities.push_back(Entity{
+      entityId++,
+      {row, col},
+      "wall",
+      {{"isStop", true}}
+    });
+  }
+
+  // --- Agua ---
+  input >> n;
+  for (int i = 0; i < n; ++i) {
+    input >> row >> col;
+    this->level.entities.push_back(Entity{
+      entityId++,
+      {row, col},
+      "water",
+      {{"isLose", true}}
+    });
+  }
+
+  input.close();
+
+  this->loadTileIDs();
 
   this->window_width = this->level.cols * this->level.cell_width;
   this->window_height = this->level.rows * this->level.cell_heigth;
   SetWindowSize(this->window_width, this->window_height);
-
-  input.close();
 }

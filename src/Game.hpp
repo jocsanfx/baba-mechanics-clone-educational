@@ -72,6 +72,7 @@ class Game {
   // Loading
   void loadTextures();
   void loadLevel();
+  void loadTileIDs();
   // Input
   void handle_input();
   // Update
