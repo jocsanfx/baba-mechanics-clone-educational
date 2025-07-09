@@ -2,7 +2,7 @@
 
 // Game handle
 void Game::init() {
-  this->title = "Papa Dio quiero pasar";
+  this->title = "Baba is you";
   this->window_width = 500;
   this->window_height = 500;
   this->fps = 60;
@@ -38,17 +38,17 @@ void Game::draw() {
 
 void Game::drawTail(int id, int row, int col) {
   Rectangle src = {
-    (float)((id % this->tiles.cols) - 1) * this->tiles.width,
-    (float)(id / this->tiles.cols) * this->tiles.height,
-    (float)(this->tiles.width),
-    (float)(this->tiles.height)
+    static_cast<float>((id % this->tiles.cols) - 1) * this->tiles.width,
+    static_cast<float>(id / this->tiles.cols) * this->tiles.height,
+    static_cast<float>(this->tiles.width),
+    static_cast<float>(this->tiles.height)
   };
 
   Rectangle dst = {
-    (float)(col * this->level.cell_width),
-    (float)(row * this->level.cell_heigth),
-    (float)(this->level.cell_width),
-    (float)(this->level.cell_heigth)
+    static_cast<float>(col * this->level.cell_width),
+    static_cast<float>(row * this->level.cell_heigth),
+    static_cast<float>(this->level.cell_width),
+    static_cast<float>(this->level.cell_heigth)
   };
   Vector2 origin = {0.0f, 0.0f};
   DrawTexturePro(this->tiles.texture, src, dst, origin, 0, WHITE);
@@ -116,19 +116,12 @@ void Game::loadLevel() {
 
   input >> this->level.rows >> this->level.cols;
   input >> this->level.cell_width >> this->level.cell_heigth;
-
+  char empty = 'e';
   this->level.mapa.clear();
   this->level.entities.clear();
 
-  // --- Leer mapa base ---
-  for (int i = 0; i < this->level.rows; ++i) {
-    this->level.mapa.push_back({});
-    for (int j = 0; j < this->level.cols; ++j) {
-      char cell;
-      input >> cell;
-      this->level.mapa[i].push_back(cell);
-    }
-  }
+  this->level.mapa = std::vector<std::vector<char>>(
+    this->level.rows, std::vector<char>(this->level.cols, empty));
 
   int n, row, col;
   int entityId = 0;
