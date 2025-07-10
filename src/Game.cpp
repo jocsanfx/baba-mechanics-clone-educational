@@ -22,7 +22,7 @@ void Game::run() {
     }
 
     BeginDrawing();
-    ClearBackground(RAYWHITE);
+    ClearBackground(BLACK);
     this->level.drawMap();
     this->level.drawEntities();
 

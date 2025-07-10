@@ -4,7 +4,7 @@
 void Level::draw() {
   BeginDrawing();
 
-  ClearBackground(RAYWHITE);
+  ClearBackground(BLACK);
   this->drawMap();
   this->drawEntities();
 
@@ -13,7 +13,7 @@ void Level::draw() {
 
 void Level::drawTail(int id, int row, int col) {
   Rectangle src = {
-    static_cast<float>((id % this->tiles.cols) - 1) * this->tiles.width,
+    static_cast<float>((id % this->tiles.cols)) * this->tiles.width,
     static_cast<float>(id / this->tiles.cols) * this->tiles.height,
     static_cast<float>(this->tiles.width),
     static_cast<float>(this->tiles.height)
@@ -62,16 +62,16 @@ void Level::drawEntities() {
 
 // Loading
 void Level::loadTextures() {
-  Image image = LoadImage("./assets/images/sokoban.png");
+  Image image = LoadImage("./assets/images/baba.png");
   this->tiles.texture = LoadTextureFromImage(image);
   UnloadImage(image);
 
   // Estan fijos porque son las medidas del sprite sheet del ejemplo de Sokoban
   // pero son intercambiables ez por si usamos otro
   this->tiles.rows = 8;
-  this->tiles.cols = 13;
-  this->tiles.width = 64;
-  this->tiles.height = 64;
+  this->tiles.cols = 9;
+  this->tiles.width = 24;
+  this->tiles.height = 24;
 }
 
 void Level::loadTileIDs() {
@@ -87,7 +87,7 @@ void Level::loadTileIDs() {
 }
 
 void Level::loadLevel() {
-  std::ifstream input("./assets/data/lvl2.txt");
+  std::ifstream input("./assets/data/lvl0.txt");
 
   input >> this->level.rows >> this->level.cols;
   input >> this->level.cell_width >> this->level.cell_heigth;
