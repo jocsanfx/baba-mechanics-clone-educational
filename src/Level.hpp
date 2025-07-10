@@ -52,10 +52,12 @@ struct LevelData {
 };
 
 class Level {
-  friend class Game;
- private:
+  private:
+  int frameCount = 0;
+  int count = 0;
   float offsetX = 0;
   float offsetY = 0;
+  friend class Game;
 
   TileData tiles;
   LevelData level;
@@ -70,7 +72,7 @@ class Level {
   // Update
   void update();
   // Draw
-  void draw();
+  void draw(GameState state);
   void drawTail(int id, int row, int col);
   void drawMap();
   void drawEntities();

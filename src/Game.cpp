@@ -21,18 +21,7 @@ void Game::run() {
       this->state = this->level.handleInput();
     }
 
-    BeginDrawing();
-    ClearBackground(BLACK);
-    this->level.drawMap();
-    this->level.drawEntities();
-
-    if (this->state == GameState::won) {
-      DrawText("¡Ganaste!", 10, 10, 20, GREEN);
-    } else if (this->state == GameState::lost) {
-      DrawText("¡Perdiste!", 10, 10, 20, RED);
-    }
-
-    EndDrawing();
+    level.draw(state);
 
     if (this->state == GameState::lost && IsKeyPressed(KEY_ENTER)) {
       this->level.loadLevel();

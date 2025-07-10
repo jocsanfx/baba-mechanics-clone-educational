@@ -1,13 +1,21 @@
 #include "Level.hpp"
 
 // Draw
-void Level::draw() {
+void Level::draw(GameState state) {
+  ++frameCount;
+  if (frameCount >= 12) {
+    frameCount = 0; count = (count + 1) % 3;
+  }
   BeginDrawing();
-
   ClearBackground(BLACK);
-  this->drawMap();
-  this->drawEntities();
-
+  drawMap();
+  drawEntities();
+  if (state == GameState::won) {
+    DrawText("¡Ganaste!", 10, 10, 20, GREEN);
+  }
+  else if (state == GameState::lost) {
+    DrawText("¡Perdiste!", 10, 10, 20, RED);
+  }
   EndDrawing();
 }
 
@@ -43,20 +51,23 @@ void Level::drawEntities() {
     int id = 0;
 
     if (e.type == "player") {
-      id = this->level.tiles_id['*'];
+      id = this->level.tiles_id['*'] + this->count;
     } else if (e.type == "instruction") {
-      id = this->level.tiles_id['B'];
+      id = this->level.tiles_id['B'] + this->count;
     } else if (e.type == "rock") {
-      id = this->level.tiles_id['$'];
+      id = this->level.tiles_id['$'] + this->count;
     } else if (e.type == "flag") {
-      id = this->level.tiles_id['&'];
+      id = this->level.tiles_id['&'] + this->count;
     } else if (e.type == "wall") {
-      id = this->level.tiles_id['#'];
+      id = this->level.tiles_id['#'] + this->count;
     } else if (e.type == "water") {
-      id = this->level.tiles_id['~'];
+      id = this->level.tiles_id['~'] + this->count;
     }
 
     this->drawTail(id, e.pos.first, e.pos.second);
+    
+
+
   }
 }
 
