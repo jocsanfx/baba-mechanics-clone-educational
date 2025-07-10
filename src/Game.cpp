@@ -3,8 +3,8 @@
 // Game handle
 void Game::init() {
   this->title = "Baba is you";
-  this->window_width = 800;
-  this->window_height = 800;
+  this->window_width = GetScreenWidth();
+  this->window_height = GetScreenHeight();
   this->fps = 60;
 
   InitWindow(this->window_width, this->window_height, this->title.c_str());
