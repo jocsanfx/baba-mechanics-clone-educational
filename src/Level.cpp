@@ -1,21 +1,26 @@
 #include "Level.hpp"
 
-// Draw
 void Level::draw(GameState state) {
   ++frameCount;
   if (frameCount >= 12) {
     frameCount = 0;
     count = (count + 1) % 3;
   }
+
   BeginDrawing();
-  ClearBackground(BLACK);
+  ClearBackground({21, 24, 31, 255});
+  int mapW = level.cols * level.cell_width;
+  int mapH = level.rows * level.cell_heigth;
+  DrawRectangle(offsetX, offsetY, mapW, mapH, BLACK);
+
   drawMap();
   drawEntities();
-  if (state == GameState::won) {
+
+  if (state == GameState::won)
     DrawText("¡Ganaste!", 10, 10, 20, GREEN);
-  } else if (state == GameState::lost) {
+  else if (state == GameState::lost)
     DrawText("¡Perdiste!", 10, 10, 20, RED);
-  }
+
   EndDrawing();
 }
 
@@ -94,6 +99,7 @@ void Level::loadTextures() {
   this->tiles.texture = LoadTextureFromImage(image);
   UnloadImage(image);
 
+  // TODO:Pasar a config o global
   // Estan fijos porque son las medidas del sprite sheet del ejemplo de Sokoban
   // pero son intercambiables ez por si usamos otro
   this->tiles.rows = 8;
@@ -115,7 +121,7 @@ void Level::loadTileIDs() {
 }
 
 void Level::loadLevel() {
-  std::ifstream input("./assets/data/lvl6.txt");
+  std::ifstream input("./assets/data/lvl5.txt");
 
   input >> this->level.rows >> this->level.cols;
   input.ignore();
@@ -170,9 +176,9 @@ void Level::loadLevel() {
 // Aux
 void Level::adjustToFitScreen() {
   float scaleW = static_cast<float>(GetScreenWidth()) /
-                 (this->level.cols * this->tiles.width);
+                 (this->level.cols * this->tiles.width) * 5 / 7;
   float scaleH = static_cast<float>(GetScreenHeight()) /
-                 (this->level.rows * this->tiles.height);
+                 (this->level.rows * this->tiles.height) * 5 / 7;
 
   float finalScale = std::min(scaleW, scaleH);
 
