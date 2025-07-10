@@ -1,4 +1,5 @@
 #include "Level.hpp"
+#include "Config.hpp"
 
 char getSymbolForEntity(const std::string &type);
 
@@ -76,23 +77,19 @@ void Level::undo() {
   }
 }
 
-// Loading
 void Level::loadTextures() {
-  Image image = LoadImage("./assets/images/baba.png");
+  Image image = LoadImage(SPRITE_SHEET_PATH);
   this->tiles.texture = LoadTextureFromImage(image);
   UnloadImage(image);
 
-  // TODO:Pasar a config o global
-  // Estan fijos porque son las medidas del sprite sheet del ejemplo de Sokoban
-  // pero son intercambiables ez por si usamos otro
-  this->tiles.rows = 8;
-  this->tiles.cols = 9;
-  this->tiles.width = 24;
-  this->tiles.height = 24;
+  this->tiles.rows = SPRITE_SHEET_ROW;
+  this->tiles.cols = SPRITE_SHEET_COL;
+  this->tiles.width = SPRITE_SHEET_WIDTH;
+  this->tiles.height = SPRITE_SHEET_HEIGHT;
 }
 
 void Level::loadTileIDs() {
-  std::ifstream idInput("./assets/data/tile_ids.txt");
+  std::ifstream idInput(TILE_ID_PATH);
   char symbol;
   int tileID;
   while (idInput >> symbol >> tileID) {
@@ -102,7 +99,7 @@ void Level::loadTileIDs() {
 }
 
 void Level::loadLevel() {
-  std::ifstream input("./assets/data/lvl5.txt");
+  std::ifstream input(LEVEL_TO_LOAD);
 
   input >> this->level.rows >> this->level.cols;
   input.ignore();
@@ -140,7 +137,7 @@ void Level::loadLevel() {
       }
 
       this->level.entities.push_back(
-          Entity{entityId++, {i, j}, type, tags, ch});
+        Entity{entityId++, {i, j}, type, tags, ch});
     }
   }
 
@@ -151,11 +148,10 @@ void Level::loadLevel() {
 
 // Aux
 void Level::adjustToFitScreen() {
-  // TODO: SCALE FACTOR IN CONFIG
   float scaleW = static_cast<float>(GetScreenWidth()) /
-    (this->level.cols * this->tiles.width) * 5 / 7;
+    (this->level.cols * this->tiles.width) * SCALE_FACTOR;
   float scaleH = static_cast<float>(GetScreenHeight()) /
-    (this->level.rows * this->tiles.height) * 5 / 7;
+    (this->level.rows * this->tiles.height) * SCALE_FACTOR;
 
   float finalScale = std::min(scaleW, scaleH);
   this->level.cell_width = this->tiles.width * finalScale;
@@ -190,6 +186,7 @@ char getSymbolForEntity(const std::string &type) {
   if (type == "flower") { return 'f'; }
   if (type == "floor") { return 'Z'; }
   if (type == "brick") { return 'b'; }
+  if (type == "melt") { return 'M'; }
   return '0';
 }
 
@@ -262,6 +259,9 @@ std::string Level::entityString(char c) {
       break;
     case 'b':
       return "brick";
+      break;
+    case 'M':
+      return "melt";
       break;
 
     case 'B':

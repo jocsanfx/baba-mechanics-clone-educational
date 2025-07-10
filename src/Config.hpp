@@ -3,6 +3,14 @@
 
 #include <string>
 #include <raylib.h>
+#define SCALE_FACTOR 5/7
+#define SPRITE_SHEET_ROW 10
+#define SPRITE_SHEET_COL 9
+#define SPRITE_SHEET_WIDTH 24
+#define SPRITE_SHEET_HEIGHT 24
+#define SPRITE_SHEET_PATH "./assets/images/baba.png"
+#define TILE_ID_PATH "./assets/data/tile_ids.txt"
+#define LEVEL_TO_LOAD "./assets/data/lvl5.txt"
 
 enum class GameState { playing, won, lost };
 
