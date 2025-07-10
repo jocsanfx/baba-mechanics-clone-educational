@@ -1,39 +1,43 @@
 #include "Level.hpp"
 
+char getSymbolForEntity(const std::string &type);
+
 void Level::draw(GameState state) {
-  ++frameCount;
-  if (frameCount >= 12) {
-    frameCount = 0;
-    count = (count + 1) % 3;
+  ++this->frameCount;
+  if (this->frameCount >= 12) {
+    this->frameCount = 0;
+    this->count = (this->count + 1) % 3;
   }
 
   BeginDrawing();
   ClearBackground({21, 24, 31, 255});
-  int mapW = level.cols * level.cell_width;
-  int mapH = level.rows * level.cell_heigth;
-  DrawRectangle(offsetX, offsetY, mapW, mapH, BLACK);
+  int mapW = this->level.cols * this->level.cell_width;
+  int mapH = this->level.rows * this->level.cell_heigth;
+  DrawRectangle(this->offsetX, this->offsetY, mapW, mapH, BLACK);
 
   drawMap();
   drawEntities();
 
-  if (state == GameState::won)
+  if (state == GameState::won) {
     DrawText("¡Ganaste!", 10, 10, 20, GREEN);
-  else if (state == GameState::lost)
+  }
+  else if (state == GameState::lost) {
     DrawText("¡Perdiste!", 10, 10, 20, RED);
+  }
 
   EndDrawing();
 }
 
 void Level::drawTail(int id, int row, int col) {
   Rectangle src = {
-      static_cast<float>((id % this->tiles.cols)) * this->tiles.width,
-      static_cast<float>(id / this->tiles.cols) * this->tiles.height,
-      static_cast<float>(this->tiles.width),
-      static_cast<float>(this->tiles.height)};
+    static_cast<float>((id % this->tiles.cols)) * this->tiles.width,
+    static_cast<float>(id / this->tiles.cols) * this->tiles.height,
+    static_cast<float>(this->tiles.width),
+    static_cast<float>(this->tiles.height)};
 
   Rectangle dst = {
-      this->offsetX + static_cast<float>(col * this->level.cell_width),
-      this->offsetY + static_cast<float>(row * this->level.cell_heigth),
+    this->offsetX + static_cast<float>(col * this->level.cell_width),
+    this->offsetY + static_cast<float>(row * this->level.cell_heigth),
       static_cast<float>(this->level.cell_width),
       static_cast<float>(this->level.cell_heigth)};
   Vector2 origin = {0.0f, 0.0f};
@@ -52,33 +56,12 @@ void Level::drawMap() {
 void Level::drawEntities() {
   for (const Entity &e : this->level.entities) {
     int id = 0;
-
     if (e.type == "instruction") {
-      id = this->level.tiles_id[e.symbol] + this->count;
-    } else if (e.type == "player") {
-      id = this->level.tiles_id['*'] + this->count;
-    } else if (e.type == "rock") {
-      id = this->level.tiles_id['$'] + this->count;
-    } else if (e.type == "flag") {
-      id = this->level.tiles_id['&'] + this->count;
-    } else if (e.type == "wall") {
-      id = this->level.tiles_id['#'] + this->count;
-    } else if (e.type == "water") {
-      id = this->level.tiles_id['~'] + this->count;
-    } else if (e.type == "skull") {
-      id = this->level.tiles_id['+'] + this->count;
-    } else if (e.type == "lava") {
-      id = this->level.tiles_id['-'] + this->count;
-    } else if (e.type == "grass") {
-      id = this->level.tiles_id['h'] + this->count;
-    } else if (e.type == "flower") {
-      id = this->level.tiles_id['f'] + this->count;
-    } else if (e.type == "floor") {
-      id = this->level.tiles_id['Z'] + this->count;
-    } else if (e.type == "brick") {
-      id = this->level.tiles_id['b'] + this->count;
+      id = this->level.tiles_id[e.symbol];
+    } else {
+      id = this->level.tiles_id[getSymbolForEntity(e.type)];
     }
-
+    id += this->count;
     this->drawTail(id, e.pos.first, e.pos.second);
   }
 }
@@ -110,13 +93,11 @@ void Level::loadTextures() {
 
 void Level::loadTileIDs() {
   std::ifstream idInput("./assets/data/tile_ids.txt");
-
   char symbol;
   int tileID;
   while (idInput >> symbol >> tileID) {
     this->level.tiles_id[symbol] = tileID;
   }
-
   idInput.close();
 }
 
@@ -130,11 +111,8 @@ void Level::loadLevel() {
   this->level.entities.clear();
   this->level.mapa = std::vector<std::vector<char>>(
       this->level.rows, std::vector<char>(this->level.cols, '0'));
-
   this->history = {};
-
   int entityId = 0;
-
   for (int i = 0; i < this->level.rows; ++i) {
     std::string line;
     std::getline(input, line);
@@ -153,10 +131,8 @@ void Level::loadLevel() {
       if (type == "") continue;
 
       std::map<std::string, bool> tags = {{"isPush", true},
-                                          {"isYou", false},
-                                          {"isLose", false},
-                                          {"isWin", false},
-                                          {"isStop", false}};
+        {"isYou", false}, {"isLose", false}, {"isWin", false},
+        {"isStop", false}};
 
       if (type == "player") {
         tags["isYou"] = true;
@@ -175,19 +151,17 @@ void Level::loadLevel() {
 
 // Aux
 void Level::adjustToFitScreen() {
+  // TODO: SCALE FACTOR IN CONFIG
   float scaleW = static_cast<float>(GetScreenWidth()) /
-                 (this->level.cols * this->tiles.width) * 5 / 7;
+    (this->level.cols * this->tiles.width) * 5 / 7;
   float scaleH = static_cast<float>(GetScreenHeight()) /
-                 (this->level.rows * this->tiles.height) * 5 / 7;
+    (this->level.rows * this->tiles.height) * 5 / 7;
 
   float finalScale = std::min(scaleW, scaleH);
-
   this->level.cell_width = this->tiles.width * finalScale;
   this->level.cell_heigth = this->tiles.height * finalScale;
-
   float totalMapWidth = this->level.cols * this->level.cell_width;
   float totalMapHeight = this->level.rows * this->level.cell_heigth;
-
   this->offsetX = (GetScreenWidth() - totalMapWidth) / 2.0f;
   this->offsetY = (GetScreenHeight() - totalMapHeight) / 2.0f;
 }
@@ -204,18 +178,18 @@ bool Level::isBlocked(int row, int col) {
 }
 
 char getSymbolForEntity(const std::string &type) {
-  if (type == "player") return '*';
-  if (type == "instruction") return 'I';
-  if (type == "rock") return '$';
-  if (type == "flag") return '&';
-  if (type == "wall") return '#';
-  if (type == "water") return '~';
-  if (type == "lava") return '-';
-  if (type == "skull") return '+';
-  if (type == "grass") return 'h';
-  if (type == "flower") return 'f';
-  if (type == "floor") return 'Z';
-  if (type == "brick") return 'b';
+  if (type == "player") { return '*'; }
+  if (type == "instruction") { return 'I'; }
+  if (type == "rock") { return '$'; }
+  if (type == "flag") { return '&'; }
+  if (type == "wall") { return '#'; }
+  if (type == "water") { return '~'; }
+  if (type == "lava") { return '-'; }
+  if (type == "skull") { return '+'; }
+  if (type == "grass") { return 'h'; }
+  if (type == "flower") { return 'f'; }
+  if (type == "floor") { return 'Z'; }
+  if (type == "brick") { return 'b'; }
   return '0';
 }
 
@@ -223,37 +197,34 @@ bool Level::tryPush(int row, int col, int dx, int dy) {
   int nextRow = row + dy;
   int nextCol = col + dx;
   if (nextRow < 0 || nextRow >= this->level.rows || nextCol < 0 ||
-      nextCol >= this->level.cols) {
+    nextCol >= this->level.cols) {
     return false;
   }
 
   auto it =
-      std::find_if(this->level.entities.begin(), this->level.entities.end(),
-                   [row, col](const Entity &e) {
-                     return e.pos == std::make_pair(row, col);
-                   });
+    std::find_if(this->level.entities.begin(), this->level.entities.end(),
+      [row, col](const Entity &e) {
+      return e.pos == std::make_pair(row, col);
+    });
 
-  if (it == this->level.entities.end()) return true;
-
+  if (it == this->level.entities.end()) { return true; }
   Entity &current = *it;
-
-  if (!current.tags["isPush"]) return false;
+  if (!current.tags["isPush"]) { return false; }
 
   auto front =
-      std::find_if(this->level.entities.begin(), this->level.entities.end(),
-                   [nextRow, nextCol](const Entity &e) {
-                     return e.pos == std::make_pair(nextRow, nextCol);
-                   });
+    std::find_if(this->level.entities.begin(), this->level.entities.end(),
+      [nextRow, nextCol](const Entity &e) {
+      return e.pos == std::make_pair(nextRow, nextCol);
+    });
 
   if (front != this->level.entities.end()) {
-    if (front->tags["isStop"]) return false;
+    if (front->tags["isStop"]) { return false; }
     if (front->tags["isPush"]) {
-      if (!tryPush(nextRow, nextCol, dx, dy)) return false;
+      if (!tryPush(nextRow, nextCol, dx, dy)) { return false; }
     }
   }
 
   current.pos = {nextRow, nextCol};
-
   return true;
 }
 
@@ -316,20 +287,21 @@ std::string Level::entityString(char c) {
   }
 }
 
-// Input
 GameState Level::handleInput() {
   Vector2 dir = {0, 0};
-
-  if (IsKeyPressed(KEY_RIGHT))
+  if (IsKeyPressed(KEY_RIGHT)) {
     dir.x = 1;
-  else if (IsKeyPressed(KEY_LEFT))
+  }
+  else if (IsKeyPressed(KEY_LEFT)) {
     dir.x = -1;
-  else if (IsKeyPressed(KEY_DOWN))
+  }
+  else if (IsKeyPressed(KEY_DOWN)) {
     dir.y = 1;
-  else if (IsKeyPressed(KEY_UP))
+  }
+  else if (IsKeyPressed(KEY_UP)) {
     dir.y = -1;
-
-  if (IsKeyPressed(KEY_Z)) {
+  }
+  if (IsKeyDown(KEY_Z)) {
     if (!history.empty()) {
       auto snapshot = history.top();
       history.pop();
@@ -340,28 +312,23 @@ GameState Level::handleInput() {
   }
 
   GameState result = GameState::playing;
-
-  if (dir.x == 0 && dir.y == 0) return result;
-
+  if (dir.x == 0 && dir.y == 0) { return result; }
   int dx = static_cast<int>(dir.x);
   int dy = static_cast<int>(dir.y);
-
   history.push({this->level.mapa, this->level.entities});
-
   for (Entity &e : this->level.entities) {
     if (e.tags["isYou"]) {
       int newRow = e.pos.first + dy;
       int newCol = e.pos.second + dx;
       if (newRow < 0 || newRow >= this->level.rows || newCol < 0 ||
-          newCol >= this->level.cols) {
+        newCol >= this->level.cols) {
         continue;
       }
-
       auto it =
-          std::find_if(this->level.entities.begin(), this->level.entities.end(),
-                       [newRow, newCol](const Entity &other) {
-                         return other.pos == std::make_pair(newRow, newCol);
-                       });
+        std::find_if(this->level.entities.begin(), this->level.entities.end(),
+          [newRow, newCol](const Entity &other) {
+          return other.pos == std::make_pair(newRow, newCol);
+        });
 
       bool canMove = true;
 
