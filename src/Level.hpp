@@ -38,6 +38,7 @@ struct Entity {
   // la clave del map es el componente (digamos que la funcionalidad)
   // el bool basicamente indica si lo tiene o no (como si es empujable o no)
   std::map<std::string, bool> tags;
+  char symbol;
 };
 
 struct LevelData {
@@ -78,6 +79,7 @@ class Level {
   void adjustToFitScreen();
   bool isBlocked(int row, int col);
   bool tryPush(int row, int col, int dx, int dy);
+  std::string entityString(char c);
 };
 
 #endif // LEVEL_HPP

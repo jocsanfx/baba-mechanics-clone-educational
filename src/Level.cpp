@@ -42,10 +42,10 @@ void Level::drawEntities() {
   for (const Entity& e : this->level.entities) {
     int id = 0;
 
-    if (e.type == "player") {
+    if (e.type == "instruction") {
+      id = this->level.tiles_id[e.symbol];
+    } else if (e.type == "player") {
       id = this->level.tiles_id['*'];
-    } else if (e.type == "instruction") {
-      id = this->level.tiles_id['B'];
     } else if (e.type == "rock") {
       id = this->level.tiles_id['$'];
     } else if (e.type == "flag") {
@@ -54,10 +54,13 @@ void Level::drawEntities() {
       id = this->level.tiles_id['#'];
     } else if (e.type == "water") {
       id = this->level.tiles_id['~'];
+    } else if (e.type == "skull") {
+      id = this->level.tiles_id['+'];
     }
 
     this->drawTail(id, e.pos.first, e.pos.second);
   }
+
 }
 
 // Loading
@@ -87,82 +90,58 @@ void Level::loadTileIDs() {
 }
 
 void Level::loadLevel() {
-  std::ifstream input("./assets/data/lvl0.txt");
+  std::ifstream input("./assets/data/lvl4.txt");
 
   input >> this->level.rows >> this->level.cols;
-  input >> this->level.cell_width >> this->level.cell_heigth;
-  char empty = 'e';
+  input.ignore();
+
   this->level.mapa.clear();
   this->level.entities.clear();
-
   this->level.mapa = std::vector<std::vector<char>>(
-    this->level.rows, std::vector<char>(this->level.cols, empty));
+    this->level.rows, std::vector<char>(this->level.cols, '0'));
 
-  int n, row, col;
   int entityId = 0;
 
+  for (int i = 0; i < this->level.rows; ++i) {
+    std::string line;
+    std::getline(input, line);
 
-  // Esta cargando con sistemas x que por el momento no hacen nada
+    for (int j = 0; j < this->level.cols; ++j) {
+      char ch = (j < static_cast<int>(line.size())) ? line[j] : '0';
+      this->level.mapa[i][j] = ch;
 
-  // --- Instrucciones ---
-  input >> n;
-  for (int i = 0; i < n; ++i) {
-    input >> row >> col;
-    this->level.entities.push_back(Entity{
-      entityId++, {row, col}, "instruction", {{"isPush", true}}
-    });
-  }
+      if (ch == '0') continue;
 
-  // --- Jugador ---
-  input >> row >> col;
-  this->level.entities.push_back(Entity{
-    entityId++, {row, col}, "player", {{"isYou", true}}
-  });
+      std::string type = entityString(ch);
 
-  // --- Piedras ---
-  input >> n;
-  for (int i = 0; i < n; ++i) {
-    input >> row >> col;
-    this->level.entities.push_back(Entity{
-      entityId++, {row, col}, "rock", {{"isPush", true}}
-    });
-  }
+      if (type == "") continue;
 
-  // --- Bandera ---
-  input >> n;
-  for (int i = 0; i < n; ++i) {
-    input >> row >> col;
-    this->level.entities.push_back(Entity{
-      entityId++, {row, col}, "flag", {{"isWin", true}}
-    });
-  }
+      std::map<std::string, bool> tags = {
+        {"isPush", false},
+        {"isYou", false},
+        {"isLose", false},
+        {"isWin", false},
+        {"isStop", true}
+      };
 
-  // --- Muros ---
-  input >> n;
-  for (int i = 0; i < n; ++i) {
-    input >> row >> col;
-    this->level.entities.push_back(Entity{
-      entityId++,
-      {row, col},
-      "wall",
-      {{"isStop", true}}
-    });
-  }
+      if (type == "player") {
+        this->level.entities.push_back(Entity{
+          entityId++, {i, j}, type, {{"isPush", false},
+        {"isYou", true},
+        {"isLose", false},
+        {"isWin", false},
+        {"isStop", false}}, ch
+        });
+      } else {
+        this->level.entities.push_back(Entity{
+          entityId++, {i, j}, type, tags, ch
+        });
+      }
 
-  // --- Agua ---
-  input >> n;
-  for (int i = 0; i < n; ++i) {
-    input >> row >> col;
-    this->level.entities.push_back(Entity{
-      entityId++,
-      {row, col},
-      "water",
-      {{"isLose", true}}
-    });
+    }
   }
 
   input.close();
-
   this->loadTileIDs();
   this->adjustToFitScreen();
 }
@@ -247,6 +226,27 @@ bool Level::tryPush(int row, int col, int dx, int dy) {
   return true;
 }
 
+std::string Level::entityString(char c) {
+  switch (c) {
+    case '#': return "wall"; break;
+    case '$': return "rock"; break;
+    case '*': return "player"; break;
+    case '&': return "flag"; break;
+    case '~': return "water"; break;
+    case '+': return "skull"; break;
+    case '-': return "lava"; break;
+
+    case 'B': case 'A': case 'I': case 'S':
+    case 'Y': case 'U': case 'F': case 'N':
+    case 'R': case 'P': case 'L': case 'O':
+    case 'W':
+      return "instruction"; break;
+
+    default:
+      return "";
+  }
+}
+
 // Input
 GameState Level::handleInput() {
   Vector2 dir = {0, 0};
@@ -290,7 +290,7 @@ GameState Level::handleInput() {
       }
 
       if (canMove) {
-        this->level.mapa[e.pos.first][e.pos.second] = 'e';
+        this->level.mapa[e.pos.first][e.pos.second] = '0';
 
         e.pos = {newRow, newCol};
         this->level.mapa[newRow][newCol] = getSymbolForEntity(e.type);
