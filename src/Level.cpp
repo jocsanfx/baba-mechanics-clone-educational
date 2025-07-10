@@ -76,6 +76,16 @@ void Level::drawEntities() {
   }
 }
 
+// Update
+void Level::undo() {
+  if (!this->history.empty()) {
+    auto [prevMap, prevEntities] = this->history.top();
+    this->level.mapa = prevMap;
+    this->level.entities = prevEntities;
+    this->history.pop();
+  }
+}
+
 // Loading
 void Level::loadTextures() {
   Image image = LoadImage("./assets/images/baba.png");
@@ -103,7 +113,7 @@ void Level::loadTileIDs() {
 }
 
 void Level::loadLevel() {
-  std::ifstream input("./assets/data/lvl5.txt");
+  std::ifstream input("./assets/data/lvl1.txt");
 
   input >> this->level.rows >> this->level.cols;
   input.ignore();
@@ -111,7 +121,9 @@ void Level::loadLevel() {
   this->level.mapa.clear();
   this->level.entities.clear();
   this->level.mapa = std::vector<std::vector<char>>(
-      this->level.rows, std::vector<char>(this->level.cols, '0'));
+    this->level.rows, std::vector<char>(this->level.cols, '0'));
+
+  this->history = {};
 
   int entityId = 0;
 
@@ -126,20 +138,24 @@ void Level::loadLevel() {
       if (ch == '0') continue;
 
       std::string type = entityString(ch);
-
       if (type == "") continue;
 
-      std::map<std::string, bool> tags = {{"isPush", false}, {"isYou", false},
-        {"isLose", false}, {"isWin", false}, {"isStop", true}};
+      std::map<std::string, bool> tags = {
+        {"isPush", true},
+        {"isYou", false},
+        {"isLose", false},
+        {"isWin", false},
+        {"isStop", false}
+      };
 
       if (type == "player") {
-        this->level.entities.push_back(Entity{entityId++, {i, j}, type,
-          {{"isPush", false}, {"isYou", true}, {"isLose", false},
-          {"isWin", false}, {"isStop", false}}, ch});
-      } else {
-        this->level.entities.push_back(
-          Entity{entityId++, {i, j}, type, tags, ch});
+        tags["isYou"] = true;
+        tags["isStop"] = false;
       }
+
+      this->level.entities.push_back(Entity{
+        entityId++, {i, j}, type, tags, ch
+      });
     }
   }
 
@@ -190,7 +206,7 @@ char getSymbolForEntity(const std::string& type) {
   if (type == "grass") return 'h';
   if (type == "flower") return 'f';
   if (type == "floor") return 'Z';
-  return 'e';
+  return '0';
 }
 
 bool Level::tryPush(int row, int col, int dx, int dy) {
@@ -284,14 +300,20 @@ std::string Level::entityString(char c) {
 GameState Level::handleInput() {
   Vector2 dir = {0, 0};
 
-  if (IsKeyPressed(KEY_RIGHT))
-    dir.x = 1;
-  else if (IsKeyPressed(KEY_LEFT))
-    dir.x = -1;
-  else if (IsKeyPressed(KEY_DOWN))
-    dir.y = 1;
-  else if (IsKeyPressed(KEY_UP))
-    dir.y = -1;
+  if (IsKeyPressed(KEY_RIGHT)) dir.x = 1;
+  else if (IsKeyPressed(KEY_LEFT)) dir.x = -1;
+  else if (IsKeyPressed(KEY_DOWN)) dir.y = 1;
+  else if (IsKeyPressed(KEY_UP)) dir.y = -1;
+
+  if (IsKeyPressed(KEY_Z)) {
+    if (!history.empty()) {
+      auto snapshot = history.top();
+      history.pop();
+      this->level.mapa = snapshot.first;
+      this->level.entities = snapshot.second;
+    }
+    return GameState::playing;
+  }
 
   GameState result = GameState::playing;
 
@@ -300,16 +322,19 @@ GameState Level::handleInput() {
   int dx = static_cast<int>(dir.x);
   int dy = static_cast<int>(dir.y);
 
+  history.push({this->level.mapa, this->level.entities});
+
   for (Entity& e : this->level.entities) {
     if (e.tags["isYou"]) {
       int newRow = e.pos.first + dy;
       int newCol = e.pos.second + dx;
 
-      auto it =
-          std::find_if(this->level.entities.begin(), this->level.entities.end(),
-            [newRow, newCol](const Entity& other) {
-            return other.pos == std::make_pair(newRow, newCol);
-          });
+      auto it = std::find_if(
+        this->level.entities.begin(), this->level.entities.end(),
+        [newRow, newCol](const Entity& other) {
+          return other.pos == std::make_pair(newRow, newCol);
+        }
+      );
 
       bool canMove = true;
 
@@ -327,7 +352,6 @@ GameState Level::handleInput() {
 
       if (canMove) {
         this->level.mapa[e.pos.first][e.pos.second] = '0';
-
         e.pos = {newRow, newCol};
         this->level.mapa[newRow][newCol] = getSymbolForEntity(e.type);
 
