@@ -47,7 +47,6 @@ class Level {
   void adjustToFitScreen();
   bool isBlocked(int row, int col);
   bool tryPush(int row, int col, int dx, int dy);
-  std::string entityString(char c);
 };
 
 #endif  // LEVEL_HPP

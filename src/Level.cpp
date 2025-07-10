@@ -1,7 +1,6 @@
 #include "Level.hpp"
 #include "Config.hpp"
-
-char getSymbolForEntity(const std::string &type);
+#include "Utilities.hpp"
 
 void Level::draw(GameState state) {
   ++this->frameCount;
@@ -107,7 +106,7 @@ void Level::loadLevel() {
   this->level.mapa.clear();
   this->level.entities.clear();
   this->level.mapa = std::vector<std::vector<char>>(
-      this->level.rows, std::vector<char>(this->level.cols, '0'));
+    this->level.rows, std::vector<char>(this->level.cols, '0'));
   this->history = {};
   int entityId = 0;
   for (int i = 0; i < this->level.rows; ++i) {
@@ -121,21 +120,16 @@ void Level::loadLevel() {
       } else {
         this->level.mapa[i][j] = ch;
       }
-
       if (ch == '0') continue;
-
       std::string type = entityString(ch);
       if (type == "") continue;
-
       std::map<std::string, bool> tags = {{"isPush", true},
         {"isYou", false}, {"isLose", false}, {"isWin", false},
         {"isStop", false}};
-
       if (type == "player") {
         tags["isYou"] = true;
         tags["isStop"] = false;
       }
-
       this->level.entities.push_back(
         Entity{entityId++, {i, j}, type, tags, ch});
     }
@@ -146,7 +140,6 @@ void Level::loadLevel() {
   this->adjustToFitScreen();
 }
 
-// Aux
 void Level::adjustToFitScreen() {
   float scaleW = static_cast<float>(GetScreenWidth()) /
     (this->level.cols * this->tiles.width) * SCALE_FACTOR;
@@ -173,23 +166,6 @@ bool Level::isBlocked(int row, int col) {
   return false;
 }
 
-char getSymbolForEntity(const std::string &type) {
-  if (type == "player") { return '*'; }
-  if (type == "instruction") { return 'I'; }
-  if (type == "rock") { return '$'; }
-  if (type == "flag") { return '&'; }
-  if (type == "wall") { return '#'; }
-  if (type == "water") { return '~'; }
-  if (type == "lava") { return '-'; }
-  if (type == "skull") { return '+'; }
-  if (type == "grass") { return 'h'; }
-  if (type == "flower") { return 'f'; }
-  if (type == "floor") { return 'Z'; }
-  if (type == "brick") { return 'b'; }
-  if (type == "melt") { return 'M'; }
-  return '0';
-}
-
 bool Level::tryPush(int row, int col, int dx, int dy) {
   int nextRow = row + dy;
   int nextCol = col + dx;
@@ -197,95 +173,29 @@ bool Level::tryPush(int row, int col, int dx, int dy) {
     nextCol >= this->level.cols) {
     return false;
   }
-
   auto it =
     std::find_if(this->level.entities.begin(), this->level.entities.end(),
       [row, col](const Entity &e) {
       return e.pos == std::make_pair(row, col);
     });
-
   if (it == this->level.entities.end()) { return true; }
   Entity &current = *it;
   if (!current.tags["isPush"]) { return false; }
-
   auto front =
     std::find_if(this->level.entities.begin(), this->level.entities.end(),
       [nextRow, nextCol](const Entity &e) {
       return e.pos == std::make_pair(nextRow, nextCol);
     });
-
   if (front != this->level.entities.end()) {
     if (front->tags["isStop"]) { return false; }
     if (front->tags["isPush"]) {
       if (!tryPush(nextRow, nextCol, dx, dy)) { return false; }
     }
   }
-
   current.pos = {nextRow, nextCol};
   return true;
 }
 
-std::string Level::entityString(char c) {
-  switch (c) {
-    case '#':
-      return "wall";
-      break;
-    case '$':
-      return "rock";
-      break;
-    case '*':
-      return "player";
-      break;
-    case '&':
-      return "flag";
-      break;
-    case '~':
-      return "water";
-      break;
-    case '+':
-      return "skull";
-      break;
-    case '-':
-      return "lava";
-      break;
-    case 'h':
-      return "grass";
-      break;
-    case 'f':
-      return "flower";
-      break;
-    case 'Z':
-      return "floor";
-      break;
-    case 'b':
-      return "brick";
-      break;
-    case 'M':
-      return "melt";
-      break;
-
-    case 'B':
-    case 'A':
-    case 'I':
-    case 'S':
-    case 'Y':
-    case 'U':
-    case 'F':
-    case 'N':
-    case 'R':
-    case 'P':
-    case 'L':
-    case 'O':
-    case 'W':
-    case 'H':
-    case 'G':
-      return "instruction";
-      break;
-
-    default:
-      return "";
-  }
-}
 
 GameState Level::handleInput() {
   Vector2 dir = {0, 0};
@@ -301,7 +211,7 @@ GameState Level::handleInput() {
   else if (IsKeyPressed(KEY_UP)) {
     dir.y = -1;
   }
-  if (IsKeyDown(KEY_Z)) {
+  if (IsKeyPressed(KEY_Z)) {
     if (!history.empty()) {
       auto snapshot = history.top();
       history.pop();
@@ -360,6 +270,5 @@ GameState Level::handleInput() {
       }
     }
   }
-
   return result;
 }
