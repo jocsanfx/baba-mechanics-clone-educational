@@ -66,7 +66,6 @@ void Level::drawEntities() {
   }
 }
 
-// Update
 void Level::undo() {
   if (!this->history.empty()) {
     auto [prevMap, prevEntities] = this->history.top();
@@ -80,7 +79,6 @@ void Level::loadTextures() {
   Image image = LoadImage(SPRITE_SHEET_PATH);
   this->tiles.texture = LoadTextureFromImage(image);
   UnloadImage(image);
-
   this->tiles.rows = SPRITE_SHEET_ROW;
   this->tiles.cols = SPRITE_SHEET_COL;
   this->tiles.width = SPRITE_SHEET_WIDTH;
@@ -99,10 +97,8 @@ void Level::loadTileIDs() {
 
 void Level::loadLevel() {
   std::ifstream input(LEVEL_TO_LOAD);
-
   input >> this->level.rows >> this->level.cols;
   input.ignore();
-
   this->level.mapa.clear();
   this->level.entities.clear();
   this->level.mapa = std::vector<std::vector<char>>(
@@ -112,7 +108,6 @@ void Level::loadLevel() {
   for (int i = 0; i < this->level.rows; ++i) {
     std::string line;
     std::getline(input, line);
-
     for (int j = 0; j < this->level.cols; ++j) {
       char ch = (j < static_cast<int>(line.size())) ? line[j] : '0';
       if (entityString(ch) != "") {
@@ -134,7 +129,6 @@ void Level::loadLevel() {
         Entity{entityId++, {i, j}, type, tags, ch});
     }
   }
-
   input.close();
   this->loadTileIDs();
   this->adjustToFitScreen();
@@ -145,7 +139,6 @@ void Level::adjustToFitScreen() {
     (this->level.cols * this->tiles.width) * SCALE_FACTOR;
   float scaleH = static_cast<float>(GetScreenHeight()) /
     (this->level.rows * this->tiles.height) * SCALE_FACTOR;
-
   float finalScale = std::min(scaleW, scaleH);
   this->level.cell_width = this->tiles.width * finalScale;
   this->level.cell_heigth = this->tiles.height * finalScale;
@@ -253,10 +246,8 @@ GameState Level::handleInput() {
           }
         }
       }
-
       if (canMove) {
         e.pos = {newRow, newCol};
-
         for (const Entity &ent : this->level.entities) {
           if (ent.pos == e.pos) {
             if (ent.tags.count("isWin") && ent.tags.at("isWin")) {

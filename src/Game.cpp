@@ -1,6 +1,5 @@
 #include "Game.hpp"
 
-// Game handle
 void Game::init() {
   this->title = gameTitle;
   this->window_width = gameWW;
