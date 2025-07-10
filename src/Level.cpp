@@ -4,7 +4,8 @@
 void Level::draw(GameState state) {
   ++frameCount;
   if (frameCount >= 12) {
-    frameCount = 0; count = (count + 1) % 3;
+    frameCount = 0;
+    count = (count + 1) % 3;
   }
   BeginDrawing();
   ClearBackground(BLACK);
@@ -12,8 +13,7 @@ void Level::draw(GameState state) {
   drawEntities();
   if (state == GameState::won) {
     DrawText("¡Ganaste!", 10, 10, 20, GREEN);
-  }
-  else if (state == GameState::lost) {
+  } else if (state == GameState::lost) {
     DrawText("¡Perdiste!", 10, 10, 20, RED);
   }
   EndDrawing();
@@ -24,15 +24,13 @@ void Level::drawTail(int id, int row, int col) {
     static_cast<float>((id % this->tiles.cols)) * this->tiles.width,
     static_cast<float>(id / this->tiles.cols) * this->tiles.height,
     static_cast<float>(this->tiles.width),
-    static_cast<float>(this->tiles.height)
-  };
+    static_cast<float>(this->tiles.height)};
 
   Rectangle dst = {
     this->offsetX + static_cast<float>(col * this->level.cell_width),
     this->offsetY + static_cast<float>(row * this->level.cell_heigth),
     static_cast<float>(this->level.cell_width),
-    static_cast<float>(this->level.cell_heigth)
-  };
+    static_cast<float>(this->level.cell_heigth)};
   Vector2 origin = {0.0f, 0.0f};
   DrawTexturePro(this->tiles.texture, src, dst, origin, 0, WHITE);
 }
@@ -42,7 +40,7 @@ void Level::drawMap() {
     for (int j = 0; j < this->level.cols; ++j) {
       int id = this->level.tiles_id[this->level.mapa[i][j]];
       this->drawTail(id, i, j);
-    } 
+    }
   }
 }
 
@@ -51,9 +49,9 @@ void Level::drawEntities() {
     int id = 0;
 
     if (e.type == "instruction") {
-      id = this->level.tiles_id[e.symbol];
+      id = this->level.tiles_id[e.symbol] + this->count;
     } else if (e.type == "player") {
-      id = this->level.tiles_id['*'];
+      id = this->level.tiles_id['*'] + this->count;
     } else if (e.type == "rock") {
       id = this->level.tiles_id['$'] + this->count;
     } else if (e.type == "flag") {
@@ -61,17 +59,21 @@ void Level::drawEntities() {
     } else if (e.type == "wall") {
       id = this->level.tiles_id['#'] + this->count;
     } else if (e.type == "water") {
-      id = this->level.tiles_id['~'];
+      id = this->level.tiles_id['~'] + this->count;
     } else if (e.type == "skull") {
-      id = this->level.tiles_id['+'];
+      id = this->level.tiles_id['+'] + this->count;
+    } else if (e.type == "lava") {
+      id = this->level.tiles_id['-'] + this->count;
+    } else if (e.type == "grass") {
+      id = this->level.tiles_id['h'] + this->count;
+    } else if (e.type == "flower") {
+      id = this->level.tiles_id['f'] + this->count;
+    } else if (e.type == "floor") {
+      id = this->level.tiles_id['Z'] + this->count;
     }
 
     this->drawTail(id, e.pos.first, e.pos.second);
-    
-
-
   }
-
 }
 
 // Loading
@@ -101,7 +103,7 @@ void Level::loadTileIDs() {
 }
 
 void Level::loadLevel() {
-  std::ifstream input("./assets/data/lvl4.txt");
+  std::ifstream input("./assets/data/lvl5.txt");
 
   input >> this->level.rows >> this->level.cols;
   input.ignore();
@@ -109,7 +111,7 @@ void Level::loadLevel() {
   this->level.mapa.clear();
   this->level.entities.clear();
   this->level.mapa = std::vector<std::vector<char>>(
-    this->level.rows, std::vector<char>(this->level.cols, '0'));
+      this->level.rows, std::vector<char>(this->level.cols, '0'));
 
   int entityId = 0;
 
@@ -127,28 +129,17 @@ void Level::loadLevel() {
 
       if (type == "") continue;
 
-      std::map<std::string, bool> tags = {
-        {"isPush", false},
-        {"isYou", false},
-        {"isLose", false},
-        {"isWin", false},
-        {"isStop", true}
-      };
+      std::map<std::string, bool> tags = {{"isPush", false}, {"isYou", false},
+        {"isLose", false}, {"isWin", false}, {"isStop", true}};
 
       if (type == "player") {
-        this->level.entities.push_back(Entity{
-          entityId++, {i, j}, type, {{"isPush", false},
-        {"isYou", true},
-        {"isLose", false},
-        {"isWin", false},
-        {"isStop", false}}, ch
-        });
+        this->level.entities.push_back(Entity{entityId++, {i, j}, type,
+          {{"isPush", false}, {"isYou", true}, {"isLose", false},
+          {"isWin", false}, {"isStop", false}}, ch});
       } else {
-        this->level.entities.push_back(Entity{
-          entityId++, {i, j}, type, tags, ch
-        });
+        this->level.entities.push_back(
+          Entity{entityId++, {i, j}, type, tags, ch});
       }
-
     }
   }
 
@@ -159,14 +150,16 @@ void Level::loadLevel() {
 
 // Aux
 void Level::adjustToFitScreen() {
-  float scaleW = static_cast<float>(800) / (this->level.cols * this->tiles.width);
-  float scaleH = static_cast<float>(800) / (this->level.rows * this->tiles.height);
+  float scaleW =
+    static_cast<float>(800) / (this->level.cols * this->tiles.width);
+  float scaleH =
+    static_cast<float>(800) / (this->level.rows * this->tiles.height);
 
   float finalScale = std::min(scaleW, scaleH);
 
   this->level.cell_width = this->tiles.width * finalScale;
   this->level.cell_heigth = this->tiles.height * finalScale;
- 
+
   float totalMapWidth = this->level.cols * this->level.cell_width;
   float totalMapHeight = this->level.rows * this->level.cell_heigth;
 
@@ -175,7 +168,7 @@ void Level::adjustToFitScreen() {
 }
 
 bool Level::isBlocked(int row, int col) {
-  for (const Entity &e : this->level.entities) {
+  for (const Entity& e : this->level.entities) {
     if (e.pos == std::make_pair(row, col)) {
       if (e.tags.count("isStop") && e.tags.at("isStop")) {
         return true;
@@ -194,6 +187,9 @@ char getSymbolForEntity(const std::string& type) {
   if (type == "water") return '~';
   if (type == "lava") return '-';
   if (type == "skull") return '+';
+  if (type == "grass") return 'h';
+  if (type == "flower") return 'f';
+  if (type == "floor") return 'Z';
   return 'e';
 }
 
@@ -201,27 +197,20 @@ bool Level::tryPush(int row, int col, int dx, int dy) {
   int nextRow = row + dy;
   int nextCol = col + dx;
 
-  auto it = std::find_if(
-    this->level.entities.begin(),
-    this->level.entities.end(),
-    [row, col](const Entity& e) {
-      return e.pos == std::make_pair(row, col);
-    }
-  );
+  auto it =
+    std::find_if(this->level.entities.begin(), this->level.entities.end(),
+      [row, col](const Entity& e) {
+        return e.pos == std::make_pair(row, col);
+      });
 
   if (it == this->level.entities.end()) return true;
-
   Entity& current = *it;
-
   if (!current.tags["isPush"]) return false;
-
-  auto front = std::find_if(
-    this->level.entities.begin(),
-    this->level.entities.end(),
-    [nextRow, nextCol](const Entity& e) {
-      return e.pos == std::make_pair(nextRow, nextCol);
-    }
-  );
+  auto front =
+    std::find_if(this->level.entities.begin(), this->level.entities.end(),
+      [nextRow, nextCol](const Entity& e) {
+        return e.pos == std::make_pair(nextRow, nextCol);
+      });
 
   if (front != this->level.entities.end()) {
     if (front->tags["isStop"]) return false;
@@ -239,19 +228,52 @@ bool Level::tryPush(int row, int col, int dx, int dy) {
 
 std::string Level::entityString(char c) {
   switch (c) {
-    case '#': return "wall"; break;
-    case '$': return "rock"; break;
-    case '*': return "player"; break;
-    case '&': return "flag"; break;
-    case '~': return "water"; break;
-    case '+': return "skull"; break;
-    case '-': return "lava"; break;
+    case '#':
+      return "wall";
+      break;
+    case '$':
+      return "rock";
+      break;
+    case '*':
+      return "player";
+      break;
+    case '&':
+      return "flag";
+      break;
+    case '~':
+      return "water";
+      break;
+    case '+':
+      return "skull";
+      break;
+    case '-':
+      return "lava";
+      break;
+    case 'h':
+      return "grass";
+      break;
+    case 'f':
+      return "flower";
+      break;
+    case 'Z':
+      return "floor";
+      break;
 
-    case 'B': case 'A': case 'I': case 'S':
-    case 'Y': case 'U': case 'F': case 'N':
-    case 'R': case 'P': case 'L': case 'O':
+    case 'B':
+    case 'A':
+    case 'I':
+    case 'S':
+    case 'Y':
+    case 'U':
+    case 'F':
+    case 'N':
+    case 'R':
+    case 'P':
+    case 'L':
+    case 'O':
     case 'W':
-      return "instruction"; break;
+      return "instruction";
+      break;
 
     default:
       return "";
@@ -262,10 +284,14 @@ std::string Level::entityString(char c) {
 GameState Level::handleInput() {
   Vector2 dir = {0, 0};
 
-  if (IsKeyPressed(KEY_RIGHT)) dir.x = 1;
-  else if (IsKeyPressed(KEY_LEFT)) dir.x = -1;
-  else if (IsKeyPressed(KEY_DOWN)) dir.y = 1;
-  else if (IsKeyPressed(KEY_UP)) dir.y = -1;
+  if (IsKeyPressed(KEY_RIGHT))
+    dir.x = 1;
+  else if (IsKeyPressed(KEY_LEFT))
+    dir.x = -1;
+  else if (IsKeyPressed(KEY_DOWN))
+    dir.y = 1;
+  else if (IsKeyPressed(KEY_UP))
+    dir.y = -1;
 
   GameState result = GameState::playing;
 
@@ -279,12 +305,11 @@ GameState Level::handleInput() {
       int newRow = e.pos.first + dy;
       int newCol = e.pos.second + dx;
 
-      auto it = std::find_if(
-        this->level.entities.begin(), this->level.entities.end(),
-        [newRow, newCol](const Entity& other) {
-          return other.pos == std::make_pair(newRow, newCol);
-        }
-      );
+      auto it =
+          std::find_if(this->level.entities.begin(), this->level.entities.end(),
+            [newRow, newCol](const Entity& other) {
+            return other.pos == std::make_pair(newRow, newCol);
+          });
 
       bool canMove = true;
 

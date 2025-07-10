@@ -2,14 +2,16 @@
 #define LEVEL_HPP
 
 #include <raylib.h>
-#include <string>
-#include <vector>
-#include <fstream>
-#include <map>
-#include <utility>
-#include <deque>
-#include <iostream>
+
 #include <algorithm>
+#include <deque>
+#include <fstream>
+#include <iostream>
+#include <map>
+#include <string>
+#include <utility>
+#include <vector>
+
 #include "Common.hpp"
 
 // Basicamente es la representacion del sprite sheet dentro del codigo
@@ -53,7 +55,7 @@ struct LevelData {
 };
 
 class Level {
-  private:
+ private:
   int frameCount = 0;
   int count = 0;
   float offsetX = 0;
@@ -63,7 +65,7 @@ class Level {
   TileData tiles;
   LevelData level;
 
-  private:
+ private:
   // Loading
   void loadTextures();
   void loadLevel();
@@ -84,4 +86,4 @@ class Level {
   std::string entityString(char c);
 };
 
-#endif // LEVEL_HPP
+#endif  // LEVEL_HPP

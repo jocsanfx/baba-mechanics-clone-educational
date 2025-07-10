@@ -20,9 +20,7 @@ void Game::run() {
     if (this->state == GameState::playing) {
       this->state = this->level.handleInput();
     }
-
     level.draw(state);
-
     if (this->state == GameState::lost && IsKeyPressed(KEY_ENTER)) {
       this->level.loadLevel();
       this->state = GameState::playing;

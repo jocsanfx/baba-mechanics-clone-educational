@@ -1,8 +1,8 @@
 #ifndef GAME_HPP
 #define GAME_HPP
 
-#include "Level.hpp"
 #include "Common.hpp"
+#include "Level.hpp"
 
 class Game {
  private:
@@ -21,7 +21,6 @@ class Game {
   void run();
   // Liberar memoria
   void destroy();
-
 };
 
-#endif // GAME_HPP
+#endif  // GAME_HPP
