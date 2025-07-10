@@ -11,6 +11,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <stack>
 
 #include "Common.hpp"
 
@@ -65,6 +66,8 @@ class Level {
   TileData tiles;
   LevelData level;
 
+  std::stack<std::pair<std::vector<std::vector<char>>, std::vector<Entity>>> history;
+
  private:
   // Loading
   void loadTextures();
@@ -74,6 +77,7 @@ class Level {
   GameState handleInput();
   // Update
   void update();
+  void undo();
   // Draw
   void draw(GameState state);
   void drawTail(int id, int row, int col);
