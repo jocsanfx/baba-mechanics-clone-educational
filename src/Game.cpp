@@ -2,10 +2,10 @@
 
 // Game handle
 void Game::init() {
-  this->title = "Baba is you";
-  this->window_width = GetScreenWidth();
-  this->window_height = GetScreenHeight();
-  this->fps = 60;
+  this->title = gameTitle;
+  this->window_width = gameWW;
+  this->window_height = gameWH;
+  this->fps = gameFPS;
 
   InitWindow(this->window_width, this->window_height, this->title.c_str());
   SetTargetFPS(this->fps);
@@ -23,7 +23,7 @@ void Game::run() {
 
     level.draw(state);
 
-    if (this->state == GameState::lost && IsKeyPressed(KEY_ENTER)) {
+    if ((this->state == GameState::lost && IsKeyPressed(KEY_ENTER)) || IsKeyPressed(KEY_R)) {
       this->level.loadLevel();
       this->state = GameState::playing;
     }

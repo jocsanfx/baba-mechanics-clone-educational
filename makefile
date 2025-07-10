@@ -1,49 +1,48 @@
-#	target: dependencias | pre-requisitos
-#		acciones
+# Carpetas
+BUILD := build
+BIN := bin
+SRC := src
+INCLUDE := include
 
-# $@ -> nombre del target
-# $^ -> nombre de todas las dependencias
-# $< -> nombre de la primera dependencia
+# Variables
+APPNAME := program.exe
+XC := C:/raylib/w64devkit/bin/g++.exe
+WFLAGS := -Wall -Wextra
+INCLUDES := -I$(INCLUDE) -IC:/raylib/w64devkit/x86_64-w64-mingw32/include
+LIBS := -LC:/raylib/w64devkit/x86_64-w64-mingw32/lib -lraylib -lopengl32 -lgdi32 -lwinmm
+SFLAGS := 
 
-# VARIABLES
-XC=c++
-STD=-std=c++20
-WFLAGS=-Wall -Wextra
-INCLUDES=-lraylib -lGL -lm -lpthread -ldl -lrt -lX11
-APPNAME=program
+# Búsqueda de archivos
+FSOURCE := $(wildcard $(SRC)/*.cpp $(SRC)/*/*.cpp)
+FOBJECT := $(patsubst $(SRC)/%.cpp,$(BUILD)/%.o,$(FSOURCE))
 
-# DIRECTORIOS
-SRC=src
-BUILD=build
-BIN=bin
-
-# ARCHIVOS
-DIR=$(shell find -L $(SRC) -type d)
-FHEADER=$(wildcard $(DIR:%=%/*.hpp))
-FSOURCE=$(wildcard $(DIR:%=%/*.cpp))
-FOBJECT=$(FSOURCE:$(SRC)/%.cpp=$(BUILD)/%.o)
-
-.PHONY: all clean run
+.PHONY: all clean run asan msan
 
 all: $(BIN)/$(APPNAME)
 
 $(BIN)/$(APPNAME): $(FOBJECT) | $(BIN)
-	$(XC) $(STD) $(WFLAGS) -g $^ $(INCLUDES) -o $@
+	$(XC) $(WFLAGS) $(SFLAGS) -g $^ -o $@ $(LIBS)
 
 $(BUILD)/%.o: $(SRC)/%.cpp | $(BUILD)
-	$(XC) $(STD) $(WFLAG) -c -g $^ -o $@
-
-$(BUILD):
-	mkdir -p $@
+	@if not exist "$(@D)" mkdir "$(@D)"
+	$(XC) $(WFLAGS) $(SFLAGS) $(INCLUDES) -c -g $< -o $@
 
 $(BIN):
-	mkdir -p $@
+	@if not exist "$@" mkdir "$@"
 
-clean:
-	rm -rf $(BUILD) $(BIN)
+$(BUILD):
+	@if not exist "$@" mkdir "$@"
 
 run:
-	./$(BIN)/$(APPNAME)
+	$(BIN)/$(APPNAME) $(ARGS)
 
-show:
-	echo $(FOBJECT)
+asan: SFLAGS += -fsanitize=address
+asan: $(BIN)/$(APPNAME)
+
+msan: SFLAGS += -fsanitize=memory
+msan: XC = clang++
+msan: $(BIN)/$(APPNAME)
+
+clean:
+	@if exist "$(BUILD)" rmdir /s /q "$(BUILD)"
+	@if exist "$(BIN)" rmdir /s /q "$(BIN)"

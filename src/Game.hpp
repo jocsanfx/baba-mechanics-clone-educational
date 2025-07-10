@@ -1,7 +1,6 @@
 #ifndef GAME_HPP
 #define GAME_HPP
 
-#include "Common.hpp"
 #include "Level.hpp"
 
 class Game {

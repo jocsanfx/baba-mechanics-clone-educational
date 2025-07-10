@@ -13,7 +13,7 @@
 #include <vector>
 #include <stack>
 
-#include "Common.hpp"
+#include "Config.hpp"
 
 // Basicamente es la representacion del sprite sheet dentro del codigo
 struct TileData {
