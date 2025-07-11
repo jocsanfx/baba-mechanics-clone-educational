@@ -15,11 +15,19 @@ inline const std::map<char, char> relation {
   {'R', '$'},
   {'A', '~'},
   {'L', '-'},
-  {'S', '+'},
+  {'C', '+'},
 };
 
-inline const std::vector<char> action {
-  'W', 'D', 'Y', 'S', 'P', 'K', 'M'
+inline const std::map<char, std::string> action {
+  {'N', "isWin"},
+  {'D', "isLose"},
+  {'H', "isLose"},
+  {'K', "isLose"},
+  {'Y', "isYou"},
+  {'S', "isStop"},
+  {'P', "isPush"},
+  {'M', "isMelt"},
+  {'|', "isBreak"},
 };
 
 #endif

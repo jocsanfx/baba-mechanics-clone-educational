@@ -49,6 +49,10 @@ class Level {
   void adjustToFitScreen();
   bool isBlocked(int row, int col);
   bool tryPush(int row, int col, int dx, int dy);
+  void setSymbol(const char& old, const char& current);
+  void setTag(const char& c, const char& a);
+  void moveEntityOnMap(const Entity &entity, int oldRow, int oldCol, int newRow,
+    int newCol);
 };
 
 #endif  // LEVEL_HPP

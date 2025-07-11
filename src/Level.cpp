@@ -1,4 +1,5 @@
 #include "Level.hpp"
+
 #include "Config.hpp"
 #include "Utilities.hpp"
 
@@ -15,13 +16,11 @@ void Level::draw(GameState state) {
   int mapH = this->level.rows * this->level.cell_heigth;
   DrawRectangle(this->offsetX, this->offsetY, mapW, mapH, BLACK);
 
-  drawMap();
   drawEntities();
 
   if (state == GameState::won) {
     DrawText("¡Ganaste!", 10, 10, 20, GREEN);
-  }
-  else if (state == GameState::lost) {
+  } else if (state == GameState::lost) {
     DrawText("¡Perdiste!", 10, 10, 20, RED);
   }
 
@@ -38,19 +37,10 @@ void Level::drawTail(int id, int row, int col) {
   Rectangle dst = {
     this->offsetX + static_cast<float>(col * this->level.cell_width),
     this->offsetY + static_cast<float>(row * this->level.cell_heigth),
-      static_cast<float>(this->level.cell_width),
-      static_cast<float>(this->level.cell_heigth)};
+    static_cast<float>(this->level.cell_width),
+    static_cast<float>(this->level.cell_heigth)};
   Vector2 origin = {0.0f, 0.0f};
   DrawTexturePro(this->tiles.texture, src, dst, origin, 0, WHITE);
-}
-
-void Level::drawMap() {
-  for (int i = 0; i < this->level.rows; ++i) {
-    for (int j = 0; j < this->level.cols; ++j) {
-      int id = this->level.tiles_id[this->level.mapa[i][j]];
-      this->drawTail(id, i, j);
-    }
-  }
 }
 
 void Level::drawEntities() {
@@ -110,7 +100,7 @@ void Level::loadLevel() {
     std::getline(input, line);
     for (int j = 0; j < this->level.cols; ++j) {
       char ch = (j < static_cast<int>(line.size())) ? line[j] : '0';
-      if (entityString(ch) != "") {
+      if (entityString(ch) == "") {
         this->level.mapa[i][j] = '0';
       } else {
         this->level.mapa[i][j] = ch;
@@ -118,9 +108,9 @@ void Level::loadLevel() {
       if (ch == '0') continue;
       std::string type = entityString(ch);
       if (type == "") continue;
-      std::map<std::string, bool> tags = {{"isPush", false},
-        {"isYou", false}, {"isLose", false}, {"isWin", false},
-        {"isStop", false}, {"isBreak", false}};
+      std::map<std::string, bool> tags = {
+        {"isPush", false}, {"isYou", false},  {"isLose", false},
+        {"isWin", false},  {"isStop", false}, {"isBreak", false}};
       this->level.entities.push_back(
         Entity{entityId++, {i, j}, type, tags, ch});
     }
@@ -128,42 +118,86 @@ void Level::loadLevel() {
   input.close();
   this->loadTileIDs();
   this->adjustToFitScreen();
+  this->handleRules();
 }
 
 void Level::handleRules() {
   for (Entity &e : this->level.entities) {
-    std::map<std::string, bool> tags = {{"isPush", false},
-    {"isYou", false}, {"isLose", false}, {"isWin", false},
-    {"isStop", false}, {"isBreak", false}};
+    std::map<std::string, bool> tags = {{"isPush", false}, {"isYou", false},
+      {"isLose", false}, {"isWin", false}, {"isStop", false},
+      {"isBreak", false}};
     e.tags = tags;
+    if (e.type == "floor") {
+      e.tags = {};
+    }
     if (e.type == "instruction") {
       e.tags["isPush"] = true;
     }
   }
 
   for (Entity &e : this->level.entities) {
-    char prevChar = this->level.mapa[e.pos.first][e.pos.second - 1];
-    char nextChar = this->level.mapa[e.pos.first][e.pos.second + 1];
-    char upperChar = this->level.mapa[e.pos.first - 1][e.pos.second];
-    char underChar = this->level.mapa[e.pos.first + 1][e.pos.second];
-    // if (e.symbol = 'I' && entityString(prevChar) == "instruction"
-    //   && entityString(nextChar) == "instruction") {
-    // }
-    // if (e.symbol = 'I' && entityString(underChar) == "instruction"
-    // && entityString(upperChar) == "instruction") {
-    // }
+    if (e.symbol == 'I') {
+      char toChance;
+      char toChancefor;
 
+      if (e.pos.second - 1 < this->level.cols && e.pos.second - 1 >= 0 &&
+          e.pos.second + 1 < this->level.cols && e.pos.second + 1 >= 0) {
+        char prevChar = this->level.mapa[e.pos.first][e.pos.second - 1];
+        char nextChar = this->level.mapa[e.pos.first][e.pos.second + 1];
+        if (relation.count(prevChar) == 1 && relation.count(nextChar) == 1) {
+          toChance = relation.at(prevChar);
+          toChancefor = relation.at(nextChar);
+          std::cout << toChance << " " << toChancefor << std::endl;
+          setSymbol(toChance, toChancefor);
+        }
 
-    // si el valor de e.symbol = 'I' entonces tenemos un is, revisar que haya inst izq y derecha
-    // si la pos de izq o abajo forma parte de los objectos *impl no verbos*
-    // si el derecha o abajo es un objecto eso implica un cambio de los simbolos los valores de los tags
-    // seteados en ese propio simbolo aplican ahora para este
-    // si el de derecha o abajo es una accion hay que setear unicamente tagss
-    // mapa que guarda todas las reglas que se deben setear a tags y a quien
-    // se van cambiando los simbolos en caso de tener objecto si objecto
+        if (relation.count(prevChar) == 1 && action.count(nextChar) == 1) {
+          toChance = relation.at(prevChar);
+          toChancefor = nextChar;
+          setTag(toChance, toChancefor);
+        }
+      }
+
+      if (e.pos.first - 1 < this->level.rows && e.pos.first - 1 >= 0 &&
+          e.pos.first + 1 < this->level.rows && e.pos.first + 1 >= 0) {
+        char upperChar = this->level.mapa[e.pos.first - 1][e.pos.second];
+        char underChar = this->level.mapa[e.pos.first + 1][e.pos.second];
+
+        if (relation.count(upperChar) == 1 && relation.count(underChar) == 1) {
+          toChance = relation.at(upperChar);
+          toChancefor = relation.at(underChar);
+          std::cout << toChance << " " << toChancefor << std::endl;
+          setSymbol(toChance, toChancefor);
+        }
+
+        if (relation.count(upperChar) == 1 && action.count(underChar) == 1) {
+          toChance = relation.at(upperChar);
+          toChancefor = underChar;
+          setTag(toChance, toChancefor);
+        }
+      }
+    }
   }
-  
-  // setee todas las tags
+
+  setTag('~', '|');
+}
+
+void Level::setSymbol(const char& old, const char& current) {
+  for (Entity &e : this->level.entities) {
+    if (e.symbol == old) {
+      e.type = entityString(current);
+      e.symbol = current;
+      this->level.mapa[e.pos.first][e.pos.second] = current;
+    }
+  }
+}
+
+void Level::setTag(const char &c, const char &a) {
+  for (Entity &e : this->level.entities) {
+    if (e.symbol == c) {
+      e.tags[action.at(a)] = true;
+    }
+  }
 }
 
 void Level::adjustToFitScreen() {
@@ -191,6 +225,12 @@ bool Level::isBlocked(int row, int col) {
   return false;
 }
 
+void Level::moveEntityOnMap(const Entity &entity, int oldRow, int oldCol,
+    int newRow, int newCol) {
+  this->level.mapa[oldRow][oldCol] = '0';
+  this->level.mapa[newRow][newCol] = entity.symbol;
+}
+
 bool Level::tryPush(int row, int col, int dx, int dy) {
   int nextRow = row + dy;
   int nextCol = col + dx;
@@ -201,39 +241,46 @@ bool Level::tryPush(int row, int col, int dx, int dy) {
   auto it =
     std::find_if(this->level.entities.begin(), this->level.entities.end(),
       [row, col](const Entity &e) {
-      return e.pos == std::make_pair(row, col);
+        return e.pos == std::make_pair(row, col);
     });
-  if (it == this->level.entities.end()) { return true; }
+  if (it == this->level.entities.end()) {
+    return true;
+  }
   Entity &current = *it;
-  if (!current.tags["isPush"]) { return false; }
+  if (!current.tags["isPush"]) {
+    return false;
+  }
   auto front =
     std::find_if(this->level.entities.begin(), this->level.entities.end(),
       [nextRow, nextCol](const Entity &e) {
-      return e.pos == std::make_pair(nextRow, nextCol);
-    });
+        return e.pos == std::make_pair(nextRow, nextCol);
+      });
   if (front != this->level.entities.end()) {
-    if (front->tags["isStop"]) { return false; }
+    if (front->tags["isStop"]) {
+      return false;
+    }
     if (front->tags["isPush"]) {
-      if (!tryPush(nextRow, nextCol, dx, dy)) { return false; }
+      if (!tryPush(nextRow, nextCol, dx, dy)) {
+        return false;
+      }
     }
   }
+  int oldRow = current.pos.first;
+  int oldCol = current.pos.second;
   current.pos = {nextRow, nextCol};
+  moveEntityOnMap(current, oldRow, oldCol, nextRow, nextCol);
   return true;
 }
-
 
 GameState Level::handleInput() {
   Vector2 dir = {0, 0};
   if (IsKeyPressed(KEY_RIGHT)) {
     dir.x = 1;
-  }
-  else if (IsKeyPressed(KEY_LEFT)) {
+  } else if (IsKeyPressed(KEY_LEFT)) {
     dir.x = -1;
-  }
-  else if (IsKeyPressed(KEY_DOWN)) {
+  } else if (IsKeyPressed(KEY_DOWN)) {
     dir.y = 1;
-  }
-  else if (IsKeyPressed(KEY_UP)) {
+  } else if (IsKeyPressed(KEY_UP)) {
     dir.y = -1;
   }
   if (IsKeyPressed(KEY_Z)) {
@@ -247,7 +294,9 @@ GameState Level::handleInput() {
   }
 
   GameState result = GameState::playing;
-  if (dir.x == 0 && dir.y == 0) { return result; }
+  if (dir.x == 0 && dir.y == 0) {
+    return result;
+  }
   int dx = static_cast<int>(dir.x);
   int dy = static_cast<int>(dir.y);
   history.push({this->level.mapa, this->level.entities});
@@ -262,8 +311,8 @@ GameState Level::handleInput() {
       auto it =
         std::find_if(this->level.entities.begin(), this->level.entities.end(),
           [newRow, newCol](const Entity &other) {
-          return other.pos == std::make_pair(newRow, newCol);
-        });
+            return other.pos == std::make_pair(newRow, newCol);
+          });
 
       bool canMove = true;
 
@@ -279,7 +328,10 @@ GameState Level::handleInput() {
         }
       }
       if (canMove) {
+        int oldRow = e.pos.first;
+        int oldCol = e.pos.second;
         e.pos = {newRow, newCol};
+        moveEntityOnMap(e, oldRow, oldCol, newRow, newCol);
         for (const Entity &ent : this->level.entities) {
           if (ent.pos == e.pos) {
             if (ent.tags.count("isWin") && ent.tags.at("isWin")) {
@@ -293,5 +345,6 @@ GameState Level::handleInput() {
       }
     }
   }
+  handleRules();
   return result;
 }
