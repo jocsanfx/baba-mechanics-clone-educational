@@ -14,6 +14,8 @@ char getSymbolForEntity(const std::string &type) {
   if (type == "floor") { return 'Z'; }
   if (type == "brick") { return 'b'; }
   if (type == "melt") { return 'M'; }
+  if (type == "defeat") { return 'D'; }
+  if (type == "sink") { return 'K'; }
   return '0';
 }
 
@@ -52,11 +54,11 @@ std::string entityString(char c) {
     case 'b':
       return "brick";
       break;
+    
     case 'M':
-      return "melt";
-      break;
-
     case 'B':
+    case 'D':
+    case 'K':
     case 'A':
     case 'I':
     case 'S':
