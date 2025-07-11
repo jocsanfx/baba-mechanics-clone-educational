@@ -44,6 +44,8 @@ class Level {
   void drawMap();
   void drawEntities();
 
+  void handleRules();
+
   void adjustToFitScreen();
   bool isBlocked(int row, int col);
   bool tryPush(int row, int col, int dx, int dy);

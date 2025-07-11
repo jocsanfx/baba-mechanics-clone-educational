@@ -118,13 +118,9 @@ void Level::loadLevel() {
       if (ch == '0') continue;
       std::string type = entityString(ch);
       if (type == "") continue;
-      std::map<std::string, bool> tags = {{"isPush", true},
+      std::map<std::string, bool> tags = {{"isPush", false},
         {"isYou", false}, {"isLose", false}, {"isWin", false},
-        {"isStop", false}};
-      if (type == "player") {
-        tags["isYou"] = true;
-        tags["isStop"] = false;
-      }
+        {"isStop", false}, {"isBreak", false}};
       this->level.entities.push_back(
         Entity{entityId++, {i, j}, type, tags, ch});
     }
@@ -132,6 +128,42 @@ void Level::loadLevel() {
   input.close();
   this->loadTileIDs();
   this->adjustToFitScreen();
+}
+
+void Level::handleRules() {
+  for (Entity &e : this->level.entities) {
+    std::map<std::string, bool> tags = {{"isPush", false},
+    {"isYou", false}, {"isLose", false}, {"isWin", false},
+    {"isStop", false}, {"isBreak", false}};
+    e.tags = tags;
+    if (e.type == "instruction") {
+      e.tags["isPush"] = true;
+    }
+  }
+
+  for (Entity &e : this->level.entities) {
+    char prevChar = this->level.mapa[e.pos.first][e.pos.second - 1];
+    char nextChar = this->level.mapa[e.pos.first][e.pos.second + 1];
+    char upperChar = this->level.mapa[e.pos.first - 1][e.pos.second];
+    char underChar = this->level.mapa[e.pos.first + 1][e.pos.second];
+    // if (e.symbol = 'I' && entityString(prevChar) == "instruction"
+    //   && entityString(nextChar) == "instruction") {
+    // }
+    // if (e.symbol = 'I' && entityString(underChar) == "instruction"
+    // && entityString(upperChar) == "instruction") {
+    // }
+
+
+    // si el valor de e.symbol = 'I' entonces tenemos un is, revisar que haya inst izq y derecha
+    // si la pos de izq o abajo forma parte de los objectos *impl no verbos*
+    // si el derecha o abajo es un objecto eso implica un cambio de los simbolos los valores de los tags
+    // seteados en ese propio simbolo aplican ahora para este
+    // si el de derecha o abajo es una accion hay que setear unicamente tagss
+    // mapa que guarda todas las reglas que se deben setear a tags y a quien
+    // se van cambiando los simbolos en caso de tener objecto si objecto
+  }
+  
+  // setee todas las tags
 }
 
 void Level::adjustToFitScreen() {
