@@ -5,11 +5,11 @@ SRC := src
 INCLUDE := include
 
 # Variables
-APPNAME := program
-XC := g++
+APPNAME := program.exe
+XC := C:/raylib/w64devkit/bin/g++.exe
 WFLAGS := -Wall -Wextra
-INCLUDES := -I$(INCLUDE)
-LIBS := -lraylib -lGL -lm -lpthread -ldl -lrt -lX11 -lwebpdemux -lwebp
+INCLUDES := -I$(INCLUDE) -IC:/raylib/w64devkit/x86_64-w64-mingw32/include
+LIBS := -LC:/raylib/w64devkit/x86_64-w64-mingw32/lib -lraylib -lopengl32 -lgdi32 -lwinmm
 SFLAGS := 
 
 # Búsqueda de archivos
@@ -24,24 +24,25 @@ $(BIN)/$(APPNAME): $(FOBJECT) | $(BIN)
 	$(XC) $(WFLAGS) $(SFLAGS) -g $^ -o $@ $(LIBS)
 
 $(BUILD)/%.o: $(SRC)/%.cpp | $(BUILD)
-	mkdir -p $(@D)
+	@if not exist "$(@D)" mkdir "$(@D)"
 	$(XC) $(WFLAGS) $(SFLAGS) $(INCLUDES) -c -g $< -o $@
 
 $(BIN):
-	mkdir -p $@
+	@if not exist "$@" mkdir "$@"
 
 $(BUILD):
-	mkdir -p $@
+	@if not exist "$@" mkdir "$@"
 
 run:
-	./$(BIN)/$(APPNAME) $(ARGS)
+	$(BIN)/$(APPNAME) $(ARGS)
 
 asan: SFLAGS += -fsanitize=address
-asan: all
+asan: $(BIN)/$(APPNAME)
 
 msan: SFLAGS += -fsanitize=memory
 msan: XC = clang++
-msan: all
+msan: $(BIN)/$(APPNAME)
 
 clean:
-	rm -rf $(BUILD) $(BIN)
+	@if exist "$(BUILD)" rmdir /s /q "$(BUILD)"
+	@if exist "$(BIN)" rmdir /s /q "$(BIN)"

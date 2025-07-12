@@ -304,23 +304,24 @@ GameState Level::handleInput() {
 
   int dx = static_cast<int>(dir.x);
   int dy = static_cast<int>(dir.y);
-  history.push({level.mapa, level.entities});
+
+  auto snapshotMap = level.mapa;
+  auto snapshotEntities = level.entities;
+  bool didMove = false;
 
   for (Entity &e : level.entities) {
     if (!e.tags["isYou"]) continue;
 
     int newRow = e.pos.first + dy;
     int newCol = e.pos.second + dx;
-    if (newRow < 0 || newRow >= level.rows || newCol < 0 ||
-      newCol >= level.cols)
-    continue;
+    if (newRow < 0 || newRow >= level.rows || newCol < 0 || newCol >= level.cols)
+      continue;
 
     std::vector<Entity *> dest;
     for (Entity &o : level.entities)
       if (o.pos == std::make_pair(newRow, newCol)) dest.push_back(&o);
 
-    bool hasPush = false;
-    bool hasStopNoPush = false;
+    bool hasPush = false, hasStopNoPush = false;
     for (Entity *o : dest) {
       if (o->tags["isPush"])
         hasPush = true;
@@ -336,6 +337,7 @@ GameState Level::handleInput() {
       int oldCol = e.pos.second;
       e.pos = {newRow, newCol};
       moveEntityOnMap(e, oldRow, oldCol, newRow, newCol);
+      didMove = true;
 
       for (const Entity &ent : level.entities) {
         if (ent.pos != e.pos) continue;
@@ -346,6 +348,12 @@ GameState Level::handleInput() {
       }
     }
   }
-  handleRules();
+
+  if (didMove) {
+    history.push({snapshotMap, snapshotEntities});
+    handleRules();
+  }
+
   return result;
+
 }
