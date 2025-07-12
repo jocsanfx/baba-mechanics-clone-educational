@@ -31,7 +31,7 @@ class Level {
 
  private:
   void loadTextures();
-  void loadLevel();
+  void loadLevel(const int level_counter);
   void loadTileIDs();
 
   GameState handleInput();
@@ -54,6 +54,7 @@ class Level {
   void setTag(const char& c, const char& a);
   void moveEntityOnMap(const Entity &entity, int oldRow, int oldCol, int newRow,
     int newCol);
+  std::vector<char> charsAt (int r, int c);
 };
 
 #endif  // LEVEL_HPP

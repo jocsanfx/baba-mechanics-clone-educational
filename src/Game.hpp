@@ -10,6 +10,7 @@ class Game {
   int window_width = 0;
   int window_height = 0;
   int fps = 0;
+  int level_counter = 0;
   GameState state = GameState::playing;
 
  public:

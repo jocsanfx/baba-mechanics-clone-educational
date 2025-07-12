@@ -85,8 +85,8 @@ void Level::loadTileIDs() {
   idInput.close();
 }
 
-void Level::loadLevel() {
-  std::string path = PATH_LEVEL_TO_LOAD + std::to_string(3) + EXT_LEVEL_TO_LOAD;
+void Level::loadLevel(const int level_counter) {
+  std::string path = PATH_LEVEL_TO_LOAD + std::to_string(level_counter) + EXT_LEVEL_TO_LOAD;
   std::ifstream input(path);
   input >> this->level.rows >> this->level.cols;
   input.ignore();
@@ -123,13 +123,6 @@ void Level::loadLevel() {
 }
 
 void Level::handleRules() {
-  auto charsAt = [&](int r, int c) -> std::vector<char> {
-    std::vector<char> v;
-    for (const Entity &ent : level.entities)
-      if (ent.pos == std::make_pair(r, c)) v.push_back(ent.symbol);
-    if (v.empty()) v.push_back('0');
-    return v;
-  };
 
   for (Entity &e : level.entities) {
     e.tags = {{"isPush", false}, {"isYou", false},  {"isLose", false},
@@ -165,6 +158,23 @@ void Level::handleRules() {
   }
 
   setTag('~', '|');
+  setTag('h', 'S');
+}
+
+std::vector<char> Level::charsAt (int row, int col) {
+  std::vector<char> vec;
+  for (const Entity &ent : this->level.entities)
+    if (ent.pos == std::make_pair(row, col)) vec.push_back(ent.symbol);
+  if (vec.empty()) vec.push_back('0');
+  return vec;
+};
+
+void Level::setTag(const char &c, const char &a) {
+  for (Entity &e : this->level.entities) {
+    if (e.symbol == c) {
+      e.tags[action.at(a)] = true;
+    }
+  }
 }
 
 bool Level::tryMove(Entity &mover, int dr, int dc) {
@@ -202,14 +212,6 @@ void Level::setSymbol(const char &old, const char &current) {
       e.type = entityString(current);
       e.symbol = current;
       this->level.mapa[e.pos.first][e.pos.second] = current;
-    }
-  }
-}
-
-void Level::setTag(const char &c, const char &a) {
-  for (Entity &e : this->level.entities) {
-    if (e.symbol == c) {
-      e.tags[action.at(a)] = true;
     }
   }
 }
