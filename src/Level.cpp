@@ -86,7 +86,8 @@ void Level::loadTileIDs() {
 }
 
 void Level::loadLevel() {
-  std::ifstream input(LEVEL_TO_LOAD);
+  std::string path = PATH_LEVEL_TO_LOAD + std::to_string(3) + EXT_LEVEL_TO_LOAD;
+  std::ifstream input(path);
   input >> this->level.rows >> this->level.cols;
   input.ignore();
   this->level.mapa.clear();
@@ -112,7 +113,7 @@ void Level::loadLevel() {
         {"isPush", false}, {"isYou", false},  {"isLose", false},
         {"isWin", false},  {"isStop", false}, {"isBreak", false}};
       this->level.entities.push_back(
-        Entity{entityId++, {i, j}, type, tags, ch});
+          Entity{entityId++, {i, j}, type, tags, ch});
     }
   }
   input.close();
@@ -122,67 +123,80 @@ void Level::loadLevel() {
 }
 
 void Level::handleRules() {
-  for (Entity &e : this->level.entities) {
-    std::map<std::string, bool> tags = {{"isPush", false}, {"isYou", false},
-      {"isLose", false}, {"isWin", false}, {"isStop", false},
-      {"isBreak", false}};
-    e.tags = tags;
-    if (e.type == "floor") {
-      e.tags = {};
-    }
-    if (e.type == "instruction") {
-      e.tags["isPush"] = true;
-    }
+  auto charsAt = [&](int r, int c) -> std::vector<char> {
+    std::vector<char> v;
+    for (const Entity &ent : level.entities)
+      if (ent.pos == std::make_pair(r, c)) v.push_back(ent.symbol);
+    if (v.empty()) v.push_back('0');
+    return v;
+  };
+
+  for (Entity &e : level.entities) {
+    e.tags = {{"isPush", false}, {"isYou", false},  {"isLose", false},
+      {"isWin", false},  {"isStop", false}, {"isBreak", false}};
+    if (e.type == "floor") e.tags.clear();
+    if (e.type == "instruction") e.tags["isPush"] = true;
   }
 
-  for (Entity &e : this->level.entities) {
-    if (e.symbol == 'I') {
-      char toChance;
-      char toChancefor;
+  for (Entity &e : level.entities) {
+    if (e.symbol != 'I') continue;
 
-      if (e.pos.second - 1 < this->level.cols && e.pos.second - 1 >= 0 &&
-          e.pos.second + 1 < this->level.cols && e.pos.second + 1 >= 0) {
-        char prevChar = this->level.mapa[e.pos.first][e.pos.second - 1];
-        char nextChar = this->level.mapa[e.pos.first][e.pos.second + 1];
-        if (relation.count(prevChar) == 1 && relation.count(nextChar) == 1) {
-          toChance = relation.at(prevChar);
-          toChancefor = relation.at(nextChar);
-          std::cout << toChance << " " << toChancefor << std::endl;
-          setSymbol(toChance, toChancefor);
+    if (e.pos.second - 1 >= 0 && e.pos.second + 1 < level.cols) {
+      auto left = charsAt(e.pos.first, e.pos.second - 1);
+      auto right = charsAt(e.pos.first, e.pos.second + 1);
+      for (char l : left)
+        for (char r : right) {
+          if (relation.count(l) && relation.count(r))
+            setSymbol(relation.at(l), relation.at(r));
+          if (relation.count(l) && action.count(r)) setTag(relation.at(l), r);
         }
+    }
 
-        if (relation.count(prevChar) == 1 && action.count(nextChar) == 1) {
-          toChance = relation.at(prevChar);
-          toChancefor = nextChar;
-          setTag(toChance, toChancefor);
+    if (e.pos.first - 1 >= 0 && e.pos.first + 1 < level.rows) {
+      auto upper = charsAt(e.pos.first - 1, e.pos.second);
+      auto under = charsAt(e.pos.first + 1, e.pos.second);
+      for (char u : upper)
+        for (char d : under) {
+          if (relation.count(u) && relation.count(d))
+            setSymbol(relation.at(u), relation.at(d));
+          if (relation.count(u) && action.count(d)) setTag(relation.at(u), d);
         }
-      }
-
-      if (e.pos.first - 1 < this->level.rows && e.pos.first - 1 >= 0 &&
-          e.pos.first + 1 < this->level.rows && e.pos.first + 1 >= 0) {
-        char upperChar = this->level.mapa[e.pos.first - 1][e.pos.second];
-        char underChar = this->level.mapa[e.pos.first + 1][e.pos.second];
-
-        if (relation.count(upperChar) == 1 && relation.count(underChar) == 1) {
-          toChance = relation.at(upperChar);
-          toChancefor = relation.at(underChar);
-          std::cout << toChance << " " << toChancefor << std::endl;
-          setSymbol(toChance, toChancefor);
-        }
-
-        if (relation.count(upperChar) == 1 && action.count(underChar) == 1) {
-          toChance = relation.at(upperChar);
-          toChancefor = underChar;
-          setTag(toChance, toChancefor);
-        }
-      }
     }
   }
 
   setTag('~', '|');
 }
 
-void Level::setSymbol(const char& old, const char& current) {
+bool Level::tryMove(Entity &mover, int dr, int dc) {
+  int nr = mover.pos.first + dr;
+  int nc = mover.pos.second + dc;
+
+  if (nr < 0 || nr >= level.rows || nc < 0 || nc >= level.cols) return false;
+
+  std::vector<Entity *> dest;
+  for (Entity &e : level.entities)
+    if (e.pos == std::make_pair(nr, nc)) dest.push_back(&e);
+
+  bool hayStopNoPush = false;
+  bool hayPush = false;
+  for (Entity *e : dest) {
+    if (e->tags["isPush"])
+      hayPush = true;
+    else if (e->tags["isStop"])
+      hayStopNoPush = true;
+  }
+  if (hayStopNoPush && !hayPush) return false;
+
+  for (Entity *e : dest) {
+    if (!e->tags["isPush"]) continue;
+    if (!tryMove(*e, dr, dc)) return false;
+  }
+
+  mover.pos = {nr, nc};
+  return true;
+}
+
+void Level::setSymbol(const char &old, const char &current) {
   for (Entity &e : this->level.entities) {
     if (e.symbol == old) {
       e.type = entityString(current);
@@ -226,7 +240,7 @@ bool Level::isBlocked(int row, int col) {
 }
 
 void Level::moveEntityOnMap(const Entity &entity, int oldRow, int oldCol,
-    int newRow, int newCol) {
+  int newRow, int newCol) {
   this->level.mapa[oldRow][oldCol] = '0';
   this->level.mapa[newRow][newCol] = entity.symbol;
 }
@@ -234,114 +248,100 @@ void Level::moveEntityOnMap(const Entity &entity, int oldRow, int oldCol,
 bool Level::tryPush(int row, int col, int dx, int dy) {
   int nextRow = row + dy;
   int nextCol = col + dx;
-  if (nextRow < 0 || nextRow >= this->level.rows || nextCol < 0 ||
-    nextCol >= this->level.cols) {
+  if (nextRow < 0 || nextRow >= level.rows || nextCol < 0 ||
+      nextCol >= level.cols)
     return false;
+
+  std::vector<Entity *> here;
+  for (Entity &e : level.entities)
+    if (e.pos == std::make_pair(row, col)) here.push_back(&e);
+
+  bool hasPush = false;
+  bool hasStopNoPush = false;
+  for (Entity *e : here) {
+    if (e->tags["isPush"])
+      hasPush = true;
+    else if (e->tags["isStop"])
+      hasStopNoPush = true;
   }
-  auto it =
-    std::find_if(this->level.entities.begin(), this->level.entities.end(),
-      [row, col](const Entity &e) {
-        return e.pos == std::make_pair(row, col);
-    });
-  if (it == this->level.entities.end()) {
-    return true;
-  }
-  Entity &current = *it;
-  if (!current.tags["isPush"]) {
-    return false;
-  }
-  auto front =
-    std::find_if(this->level.entities.begin(), this->level.entities.end(),
-      [nextRow, nextCol](const Entity &e) {
-        return e.pos == std::make_pair(nextRow, nextCol);
-      });
-  if (front != this->level.entities.end()) {
-    if (front->tags["isStop"]) {
-      return false;
-    }
-    if (front->tags["isPush"]) {
-      if (!tryPush(nextRow, nextCol, dx, dy)) {
-        return false;
-      }
+  if (hasStopNoPush && !hasPush) return false;
+
+  if (hasPush) {
+    if (!tryPush(nextRow, nextCol, dx, dy)) return false;
+    for (Entity *e : here) {
+      if (!e->tags["isPush"]) continue;
+      int oldRow = e->pos.first, oldCol = e->pos.second;
+      e->pos = {nextRow, nextCol};
+      moveEntityOnMap(*e, oldRow, oldCol, nextRow, nextCol);
     }
   }
-  int oldRow = current.pos.first;
-  int oldCol = current.pos.second;
-  current.pos = {nextRow, nextCol};
-  moveEntityOnMap(current, oldRow, oldCol, nextRow, nextCol);
   return true;
 }
 
 GameState Level::handleInput() {
   Vector2 dir = {0, 0};
-  if (IsKeyPressed(KEY_RIGHT)) {
+  if (IsKeyPressed(KEY_RIGHT))
     dir.x = 1;
-  } else if (IsKeyPressed(KEY_LEFT)) {
+  else if (IsKeyPressed(KEY_LEFT))
     dir.x = -1;
-  } else if (IsKeyPressed(KEY_DOWN)) {
+  else if (IsKeyPressed(KEY_DOWN))
     dir.y = 1;
-  } else if (IsKeyPressed(KEY_UP)) {
+  else if (IsKeyPressed(KEY_UP))
     dir.y = -1;
-  }
+
   if (IsKeyPressed(KEY_Z)) {
     if (!history.empty()) {
-      auto snapshot = history.top();
+      auto snap = history.top();
       history.pop();
-      this->level.mapa = snapshot.first;
-      this->level.entities = snapshot.second;
+      level.mapa = snap.first;
+      level.entities = snap.second;
     }
     return GameState::playing;
   }
 
   GameState result = GameState::playing;
-  if (dir.x == 0 && dir.y == 0) {
-    return result;
-  }
+  if (dir.x == 0 && dir.y == 0) return result;
+
   int dx = static_cast<int>(dir.x);
   int dy = static_cast<int>(dir.y);
-  history.push({this->level.mapa, this->level.entities});
-  for (Entity &e : this->level.entities) {
-    if (e.tags["isYou"]) {
-      int newRow = e.pos.first + dy;
-      int newCol = e.pos.second + dx;
-      if (newRow < 0 || newRow >= this->level.rows || newCol < 0 ||
-        newCol >= this->level.cols) {
-        continue;
-      }
-      auto it =
-        std::find_if(this->level.entities.begin(), this->level.entities.end(),
-          [newRow, newCol](const Entity &other) {
-            return other.pos == std::make_pair(newRow, newCol);
-          });
+  history.push({level.mapa, level.entities});
 
-      bool canMove = true;
+  for (Entity &e : level.entities) {
+    if (!e.tags["isYou"]) continue;
 
-      if (it != this->level.entities.end()) {
-        Entity &other = *it;
-        if (other.tags["isStop"]) {
-          canMove = false;
-        } else if (other.tags["isPush"]) {
-          bool pushSuccess = tryPush(newRow, newCol, dx, dy);
-          if (!pushSuccess) {
-            canMove = false;
-          }
-        }
-      }
-      if (canMove) {
-        int oldRow = e.pos.first;
-        int oldCol = e.pos.second;
-        e.pos = {newRow, newCol};
-        moveEntityOnMap(e, oldRow, oldCol, newRow, newCol);
-        for (const Entity &ent : this->level.entities) {
-          if (ent.pos == e.pos) {
-            if (ent.tags.count("isWin") && ent.tags.at("isWin")) {
-              result = GameState::won;
-            }
-            if (ent.tags.count("isLose") && ent.tags.at("isLose")) {
-              result = GameState::lost;
-            }
-          }
-        }
+    int newRow = e.pos.first + dy;
+    int newCol = e.pos.second + dx;
+    if (newRow < 0 || newRow >= level.rows || newCol < 0 ||
+      newCol >= level.cols)
+    continue;
+
+    std::vector<Entity *> dest;
+    for (Entity &o : level.entities)
+      if (o.pos == std::make_pair(newRow, newCol)) dest.push_back(&o);
+
+    bool hasPush = false, hasStopNoPush = false;
+    for (Entity *o : dest) {
+      if (o->tags["isPush"])
+        hasPush = true;
+      else if (o->tags["isStop"])
+        hasStopNoPush = true;
+    }
+
+    bool canMove = !(hasStopNoPush && !hasPush);
+    if (canMove && hasPush && !tryPush(newRow, newCol, dx, dy)) canMove = false;
+
+    if (canMove) {
+      int oldRow = e.pos.first;
+      int oldCol = e.pos.second;
+      e.pos = {newRow, newCol};
+      moveEntityOnMap(e, oldRow, oldCol, newRow, newCol);
+
+      for (const Entity &ent : level.entities) {
+        if (ent.pos != e.pos) continue;
+        if (ent.tags.count("isWin") && ent.tags.at("isWin"))
+          result = GameState::won;
+        if (ent.tags.count("isLose") && ent.tags.at("isLose"))
+          result = GameState::lost;
       }
     }
   }

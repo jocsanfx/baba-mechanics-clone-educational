@@ -45,6 +45,7 @@ class Level {
   void drawEntities();
 
   void handleRules();
+  bool tryMove(Entity &mover, int dr, int dc);
 
   void adjustToFitScreen();
   bool isBlocked(int row, int col);

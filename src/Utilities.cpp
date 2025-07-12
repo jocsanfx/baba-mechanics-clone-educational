@@ -57,6 +57,7 @@ std::string entityString(char c) {
     
     case 'M':
     case 'B':
+    case 'C':
     case 'D':
     case 'K':
     case 'A':

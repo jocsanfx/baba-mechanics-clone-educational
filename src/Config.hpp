@@ -10,7 +10,8 @@
 #define SPRITE_SHEET_HEIGHT 24
 #define SPRITE_SHEET_PATH "./assets/images/baba.png"
 #define TILE_ID_PATH "./assets/data/tile_ids.txt"
-#define LEVEL_TO_LOAD "./assets/data/lvl0.txt"
+#define PATH_LEVEL_TO_LOAD "./assets/data/lvl"
+#define EXT_LEVEL_TO_LOAD ".txt"
 
 enum class GameState { playing, won, lost };
 
