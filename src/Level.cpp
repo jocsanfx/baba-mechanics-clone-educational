@@ -348,7 +348,7 @@ GameState Level::handleInput() {
         if (ent.pos != e.pos) continue;
         if (ent.tags.count("isWin") && ent.tags.at("isWin"))
           result = GameState::won;
-      }
+      } 
     }
   }
 
@@ -358,6 +358,20 @@ GameState Level::handleInput() {
     history.push({snapshotMap, snapshotEntities});
     handleRules();
   }
+
+  bool theresIsYou = false;
+
+  for (Entity &e : level.entities) {
+    if (e.tags.count("isYou") && e.tags.at("isYou")) {
+      theresIsYou = true;
+      break;
+    }
+  }
+
+  if (!theresIsYou) {
+    result = GameState::lost;
+  }
+
   return result;
 }
 
