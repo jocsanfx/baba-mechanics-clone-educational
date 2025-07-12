@@ -248,34 +248,32 @@ void Level::moveEntityOnMap(const Entity &entity, int oldRow, int oldCol,
 }
 
 bool Level::tryPush(int row, int col, int dx, int dy) {
-  int nextRow = row + dy;
-  int nextCol = col + dx;
-  if (nextRow < 0 || nextRow >= level.rows || nextCol < 0 ||
-      nextCol >= level.cols)
-    return false;
-
-  std::vector<Entity *> here;
+  std::vector<Entity*> here;
   for (Entity &e : level.entities)
     if (e.pos == std::make_pair(row, col)) here.push_back(&e);
 
   bool hasPush = false;
   bool hasStopNoPush = false;
   for (Entity *e : here) {
-    if (e->tags["isPush"])
-      hasPush = true;
-    else if (e->tags["isStop"])
-      hasStopNoPush = true;
+    if (e->tags["isPush"]) hasPush = true;
+    else if (e->tags["isStop"]) hasStopNoPush = true;
   }
-  if (hasStopNoPush && !hasPush) return false;
 
-  if (hasPush) {
-    if (!tryPush(nextRow, nextCol, dx, dy)) return false;
-    for (Entity *e : here) {
-      if (!e->tags["isPush"]) continue;
-      int oldRow = e->pos.first, oldCol = e->pos.second;
-      e->pos = {nextRow, nextCol};
-      moveEntityOnMap(*e, oldRow, oldCol, nextRow, nextCol);
-    }
+  if (hasStopNoPush && !hasPush) return false;
+  if (!hasPush) return true;
+
+  int nextRow = row + dy;
+  int nextCol = col + dx;
+  if (nextRow < 0 || nextRow >= level.rows ||
+      nextCol < 0 || nextCol >= level.cols) return false;
+
+  if (!tryPush(nextRow, nextCol, dx, dy)) return false;
+
+  for (Entity *e : here) {
+    if (!e->tags["isPush"]) continue;
+    int oldRow = e->pos.first, oldCol = e->pos.second;
+    e->pos = {nextRow, nextCol};
+    moveEntityOnMap(*e, oldRow, oldCol, nextRow, nextCol);
   }
   return true;
 }
@@ -321,7 +319,8 @@ GameState Level::handleInput() {
     for (Entity &o : level.entities)
       if (o.pos == std::make_pair(newRow, newCol)) dest.push_back(&o);
 
-    bool hasPush = false, hasStopNoPush = false;
+    bool hasPush = false;
+    bool hasStopNoPush = false;
     for (Entity *o : dest) {
       if (o->tags["isPush"])
         hasPush = true;
