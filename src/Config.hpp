@@ -3,6 +3,16 @@
 
 #include <string>
 #include <raylib.h>
+#define PLAYER_DEFAULT_SYMBOL '*'
+#define BABA_RIGHT '*'
+#define BABA_UP 'x'
+#define BABA_LEFT 'y'
+#define BABA_DOWN 'z'
+#define DEFAULT_SYMBOL_ID 9
+#define DEFAULT_INIT_SIZE 0
+#define DEFAULT_INIT_FPS 0
+#define MIN_LEVEL 4
+#define MAX_LEVEL 7
 #define SCALE_FACTOR 5/7
 #define SPRITE_SHEET_ROW 10
 #define SPRITE_SHEET_COL 9

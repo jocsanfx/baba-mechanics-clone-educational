@@ -54,6 +54,8 @@ class Level {
   void setTag(const char& c, const char& a);
   void moveEntityOnMap(const Entity &entity, int oldRow, int oldCol, int newRow,
     int newCol);
+  void processRemove();
+  void updatePlayerSprite(const char& dir);
   std::vector<char> charsAt (int r, int c);
 };
 

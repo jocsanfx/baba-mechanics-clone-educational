@@ -156,9 +156,6 @@ void Level::handleRules() {
         }
     }
   }
-
-  setTag('~', '|');
-  setTag('h', 'S');
 }
 
 std::vector<char> Level::charsAt (int row, int col) {
@@ -173,6 +170,9 @@ void Level::setTag(const char &c, const char &a) {
   for (Entity &e : this->level.entities) {
     if (e.symbol == c) {
       e.tags[action.at(a)] = true;
+      if (e.symbol == '~') {
+        e.tags[action.at('|')] = true; 
+      }
     }
   }
 }
@@ -280,14 +280,19 @@ bool Level::tryPush(int row, int col, int dx, int dy) {
 
 GameState Level::handleInput() {
   Vector2 dir = {0, 0};
-  if (IsKeyPressed(KEY_RIGHT))
+  if (IsKeyPressed(KEY_RIGHT)) {
     dir.x = 1;
-  else if (IsKeyPressed(KEY_LEFT))
+    updatePlayerSprite('d');
+  } else if (IsKeyPressed(KEY_LEFT)){
     dir.x = -1;
-  else if (IsKeyPressed(KEY_DOWN))
+    updatePlayerSprite('a');
+  } else if (IsKeyPressed(KEY_DOWN)) {
     dir.y = 1;
-  else if (IsKeyPressed(KEY_UP))
+    updatePlayerSprite('s');
+  } else if (IsKeyPressed(KEY_UP)) {
     dir.y = -1;
+    updatePlayerSprite('w');
+  }
 
   if (IsKeyPressed(KEY_Z)) {
     if (!history.empty()) {
@@ -343,17 +348,103 @@ GameState Level::handleInput() {
         if (ent.pos != e.pos) continue;
         if (ent.tags.count("isWin") && ent.tags.at("isWin"))
           result = GameState::won;
-        if (ent.tags.count("isLose") && ent.tags.at("isLose"))
-          result = GameState::lost;
       }
     }
   }
+
+  processRemove();
 
   if (didMove) {
     history.push({snapshotMap, snapshotEntities});
     handleRules();
   }
-
   return result;
+}
 
+void Level::processRemove() {
+  std::vector<bool> remove(level.entities.size(), false);
+  bool hasRemove = false;
+  for (size_t i = 0; i < level.entities.size(); ++i) {
+    for (size_t j = i + 1; j < level.entities.size(); ++j) {
+      if (level.entities[i].pos != level.entities[j].pos) {
+        continue;
+      }
+      if (level.entities[i].tags.count("isYou") &&
+        level.entities[i].tags.at("isYou") &&
+        level.entities[j].tags.count("isLose") &&
+        level.entities[j].tags.at("isLose")) {
+        remove[i] = true;
+        hasRemove = true;
+      }
+      if (level.entities[j].tags.count("isYou") &&
+        level.entities[j].tags.at("isYou") &&
+        level.entities[i].tags.count("isLose") &&
+        level.entities[i].tags.at("isLose")) {
+        remove[j] = true;
+        hasRemove = true;
+      }
+      if (!(level.entities[i].tags.count("isYou") &&
+        level.entities[i].tags.at("isYou")) &&
+        level.entities[j].tags.count("isBreak") &&
+        level.entities[j].tags.at("isBreak")) {
+        remove[i] = true;
+        remove[j] = true;
+        hasRemove = true;
+      }
+      if (!(level.entities[j].tags.count("isYou") &&
+        level.entities[j].tags.at("isYou")) &&
+        level.entities[i].tags.count("isBreak") &&
+        level.entities[i].tags.at("isBreak")) {
+        remove[i] = true;
+        remove[j] = true;
+        hasRemove = true;
+      }
+    }
+  }
+  for (int i = static_cast<int>(level.entities.size()) - 1; i >= 0; --i) {
+    if (remove[i]) {
+      level.entities.erase(level.entities.begin() + i);
+    }
+  }
+  if (hasRemove) {
+    for (auto &row : level.mapa) {
+      std::fill(row.begin(), row.end(), '0');
+    }
+    for (const Entity &e : level.entities) {
+      level.mapa[e.pos.first][e.pos.second] = e.symbol;
+    }
+  }
+}
+
+void Level::updatePlayerSprite(const char& dir) {
+  std::string rule = "isYou";
+  char currentAvatar;
+  for (Entity &e : this->level.entities) {
+    if (e.tags[rule] == true) {
+      currentAvatar = e.symbol;
+      break;
+    }
+  }
+  if (currentAvatar == BABA_LEFT || currentAvatar == BABA_UP
+    || currentAvatar == BABA_RIGHT || currentAvatar == BABA_DOWN) {
+    int newSprite;
+    switch (dir) {
+    case 'w':
+      newSprite = this->level.tiles_id[BABA_UP];
+      break;
+    case 'a':
+      newSprite = this->level.tiles_id[BABA_LEFT];
+      break;
+    case 's':
+      newSprite = this->level.tiles_id[BABA_DOWN];
+      break;
+    case 'd':
+      newSprite = DEFAULT_SYMBOL_ID;
+      break;
+    default:
+      newSprite = DEFAULT_SYMBOL_ID;
+      break;
+    }
+    this->level.tiles_id[currentAvatar] = newSprite;
+  }
 }

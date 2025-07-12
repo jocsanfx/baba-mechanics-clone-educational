@@ -1,4 +1,5 @@
 #include "Game.hpp"
+#include "Config.hpp"
 
 void Game::init() {
   this->title = gameTitle;
@@ -27,9 +28,13 @@ void Game::run() {
       this->level.loadLevel(this->level_counter);
       this->state = GameState::playing;
     } else if (this->state == GameState::won) {
-      this->level_counter++;
-      this->level.loadLevel(this->level_counter);
-      this->state = GameState::playing;
+      if (this->level_counter < MAX_LEVEL) {
+        this->level_counter++;
+        this->level.loadLevel(this->level_counter);
+        this->state = GameState::playing;
+      } else {
+        level.draw(state);
+      }
     }
   }
 }
