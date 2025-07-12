@@ -2,10 +2,10 @@
 #include "Config.hpp"
 
 void Game::init() {
-  this->title = gameTitle;
-  this->window_width = gameWW;
-  this->window_height = gameWH;
-  this->fps = gameFPS;
+  this->title = GAME_TITLE;
+  this->window_width = GAME_WW;
+  this->window_height = GAME_WH;
+  this->fps = GAME_FPS;
 
   InitWindow(this->window_width, this->window_height, this->title.c_str());
   SetTargetFPS(this->fps);

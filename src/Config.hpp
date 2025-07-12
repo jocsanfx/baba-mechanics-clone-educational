@@ -22,13 +22,12 @@
 #define TILE_ID_PATH "./assets/data/tile_ids.txt"
 #define PATH_LEVEL_TO_LOAD "./assets/data/lvl"
 #define EXT_LEVEL_TO_LOAD ".txt"
+#define GAME_TITLE "Baba Is You"
+#define GAME_FPS 60
 
 enum class GameState { playing, won, lost };
 
-// Valores Game
-inline const std::string gameTitle = "Baba Is You";
-inline const int gameFPS = 60;
-inline const int gameWW = GetScreenWidth();
-inline const int gameWH = GetScreenHeight();
+inline const int GAME_WW = GetScreenWidth();
+inline const int GAME_WH = GetScreenHeight();
 
 #endif  // CONFIG_HPP
