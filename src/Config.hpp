@@ -5,6 +5,7 @@
 #include <raylib.h>
 #define PLAYER_DEFAULT_SYMBOL '*'
 #define BABA_RIGHT '*'
+#define FLAG '&'
 #define BABA_UP 'x'
 #define BABA_LEFT 'y'
 #define BABA_DOWN 'z'

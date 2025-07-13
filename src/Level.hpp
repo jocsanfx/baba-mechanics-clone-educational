@@ -11,6 +11,7 @@
 #include <utility>
 #include <vector>
 #include <map>
+#include <set>
 
 #include "Structures.hpp"
 #include "Config.hpp"
@@ -41,12 +42,14 @@ class Level {
 
   void draw(GameState state, const int level_counter);
   void drawTail(int id, int row, int col);
-  void drawMap();
   void drawEntities();
 
   void handleRules();
   bool tryMove(Entity &mover, int dr, int dc);
 
+  void drawByLayer(const std::set<char>& conjunct, const char& player);
+  void drawByLayer(const char& symbol);
+  char getCurrentPlayer();
   void adjustToFitScreen();
   bool isBlocked(int row, int col);
   bool tryPush(int row, int col, int dx, int dy);

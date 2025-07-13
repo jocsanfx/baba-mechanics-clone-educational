@@ -1,7 +1,9 @@
 #ifndef UTILITIES_HPP
 #define UTILITIES_HPP
 
+#include "Config.hpp"
 #include <string>
+#include <set>
 #include <map>
 #include <vector>
 
@@ -29,5 +31,9 @@ inline const std::map<char, std::string> action {
   {'M', "isMelt"},
   {'|', "isBreak"},
 };
+
+inline const std::set<char> backgrounds{'~', 'Z', 'h', 'b', '#'};
+inline const std::set<char> valid_objects{'*', '$', '+', '-', 'f', 'x'
+  , 'y', 'z', '0'};
 
 #endif
