@@ -22,19 +22,18 @@ void Game::run() {
       this->state = this->level.handleInput();
     }
 
-    level.draw(state);
+    level.draw(state, this->level_counter);
 
     if ((this->state == GameState::lost && IsKeyPressed(KEY_ENTER)) || IsKeyPressed(KEY_R)) {
-      DrawText("Perdiste", 0, 0, 30, GREEN);
       this->level.loadLevel(this->level_counter);
       this->state = GameState::playing;
-    } else if (this->state == GameState::won) {
+    } else if (this->state == GameState::won && IsKeyPressed(KEY_ENTER)) {
       if (this->level_counter < MAX_LEVEL) {
         this->level_counter++;
         this->level.loadLevel(this->level_counter);
         this->state = GameState::playing;
       } else {
-        level.draw(state);
+        level.draw(state, this->level_counter);
       }
     }
   }

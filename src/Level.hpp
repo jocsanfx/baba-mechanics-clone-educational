@@ -39,7 +39,7 @@ class Level {
   void update();
   void undo();
 
-  void draw(GameState state);
+  void draw(GameState state, const int level_counter);
   void drawTail(int id, int row, int col);
   void drawMap();
   void drawEntities();
