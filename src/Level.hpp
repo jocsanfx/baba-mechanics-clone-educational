@@ -20,6 +20,7 @@ class Level {
  private:
   int frameCount = 0;
   int count = 0;
+  Color GREY = {21, 24, 31, 255};
   float offsetX = 0;
   float offsetY = 0;
   friend class Game;
@@ -27,8 +28,7 @@ class Level {
   TileData tiles;
   LevelData level;
 
-  std::stack<std::pair<std::vector<std::vector<char>>, std::vector<Entity>>>
-    history;
+  std::stack<std::vector<Entity>> history;
 
  private:
   void loadTextures();
@@ -55,8 +55,6 @@ class Level {
   bool tryPush(int row, int col, int dx, int dy);
   void setSymbol(const char& old, const char& current);
   void setTag(const char& c, const char& a);
-  void moveEntityOnMap(const Entity &entity, int oldRow, int oldCol, int newRow,
-    int newCol);
   void processRemove();
   void updatePlayerSprite(const char& dir);
   std::vector<char> charsAt (int r, int c);

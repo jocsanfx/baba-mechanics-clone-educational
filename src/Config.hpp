@@ -4,6 +4,8 @@
 #include <string>
 #include <raylib.h>
 #define PLAYER_DEFAULT_SYMBOL '*'
+#define ANIMATION_BY_FPS 6
+#define FONT_SIZE 60
 #define BABA_RIGHT '*'
 #define FLAG '&'
 #define BABA_UP 'x'

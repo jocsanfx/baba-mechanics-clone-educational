@@ -31,7 +31,6 @@ struct LevelData {
   int cols;
   int cell_width;
   int cell_heigth;
-  std::vector<std::vector<char>> mapa;
   std::map<char, int> tiles_id;
   std::vector<Entity> entities;
 };

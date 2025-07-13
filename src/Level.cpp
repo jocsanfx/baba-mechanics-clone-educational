@@ -5,7 +5,7 @@
 
 void Level::draw(GameState state, const int level_counter) {
   ++this->frameCount;
-  if (this->frameCount >= 12) {
+  if (this->frameCount >= ANIMATION_BY_FPS) {
     this->frameCount = 0;
     this->count = (this->count + 1) % 3;
   }
@@ -16,7 +16,7 @@ void Level::draw(GameState state, const int level_counter) {
     ClearBackground(BLACK);
 
     const char *texto = "PERDISTE";
-    int fontSize = 60;
+    int fontSize = FONT_SIZE;
     Color colorTexto = RED;
 
     Vector2 textSize = MeasureTextEx(GetFontDefault(), texto, fontSize, 1);
@@ -26,7 +26,7 @@ void Level::draw(GameState state, const int level_counter) {
     DrawText(texto, textPosition.x, textPosition.y, fontSize, colorTexto);
 
     const char *sugerencia = "Presione ENTER o R para reiniciar";
-    int smallFontSize = 20;
+    int smallFontSize = FONT_SIZE / 3;
     Vector2 instSize =
         MeasureTextEx(GetFontDefault(), sugerencia, smallFontSize, 1);
     DrawText(sugerencia, (GetScreenWidth() - instSize.x) / 2,
@@ -34,8 +34,8 @@ void Level::draw(GameState state, const int level_counter) {
   } else if (state == GameState::won) {
     ClearBackground(BLACK);
 
-    const char *texto = (level_counter != 7) ? "GANASTE" : "FIN DEL JUEGO";
-    int fontSize = 60;
+    const char *texto = (level_counter != MAX_LEVEL) ? "GANASTE" : "FIN DEL JUEGO";
+    int fontSize = FONT_SIZE;
     Color colorTexto = GREEN;
 
     Vector2 textSize = MeasureTextEx(GetFontDefault(), texto, fontSize, 1);
@@ -44,16 +44,16 @@ void Level::draw(GameState state, const int level_counter) {
 
     DrawText(texto, textPosition.x, textPosition.y, fontSize, colorTexto);
 
-    const char *sugerencia = (level_counter != 7)
+    const char *sugerencia = (level_counter != MAX_LEVEL)
                                  ? "Presione ENTER para continuar"
                                  : "Gracias por jugar";
-    int smallFontSize = 20;
+    int smallFontSize = FONT_SIZE / 3;
     Vector2 instSize =
         MeasureTextEx(GetFontDefault(), sugerencia, smallFontSize, 1);
     DrawText(sugerencia, (GetScreenWidth() - instSize.x) / 2,
              textPosition.y + textSize.y + 30, smallFontSize, WHITE);
   } else {
-    ClearBackground({21, 24, 31, 255});
+    ClearBackground(this->GREY);
     int mapW = this->level.cols * this->level.cell_width;
     int mapH = this->level.rows * this->level.cell_heigth;
     DrawRectangle(this->offsetX, this->offsetY, mapW, mapH, BLACK);
@@ -87,6 +87,7 @@ void Level::drawEntities() {
     int id = 0;
     if (e.type == "instruction") {
       id = this->level.tiles_id[e.symbol];
+      id += this->count;
       this->drawTail(id, e.pos.first, e.pos.second);
     }
   }
@@ -99,7 +100,6 @@ void Level::drawByLayer(const std::set<char>& conjunct, const char& player) {
   for (const Entity &e : this->level.entities) {
     int id = 0;
     if (e.symbol != player && conjunct.count(e.symbol) == 1) {
-      std::cout << e.symbol << std::endl;
       id = this->level.tiles_id[e.symbol];
       id += this->count;
       this->drawTail(id, e.pos.first, e.pos.second);
@@ -120,8 +120,7 @@ void Level::drawByLayer(const char& symbol) {
 
 void Level::undo() {
   if (!this->history.empty()) {
-    auto [prevMap, prevEntities] = this->history.top();
-    this->level.mapa = prevMap;
+    auto prevEntities = this->history.top();
     this->level.entities = prevEntities;
     this->history.pop();
   }
@@ -153,10 +152,7 @@ void Level::loadLevel(const int level_counter) {
   std::ifstream input(path);
   input >> this->level.rows >> this->level.cols;
   input.ignore();
-  this->level.mapa.clear();
   this->level.entities.clear();
-  this->level.mapa = std::vector<std::vector<char>>(
-      this->level.rows, std::vector<char>(this->level.cols, '0'));
   this->history = {};
   int entityId = 0;
   for (int i = 0; i < this->level.rows; ++i) {
@@ -164,11 +160,6 @@ void Level::loadLevel(const int level_counter) {
     std::getline(input, line);
     for (int j = 0; j < this->level.cols; ++j) {
       char ch = (j < static_cast<int>(line.size())) ? line[j] : '0';
-      if (entityString(ch) == "") {
-        this->level.mapa[i][j] = '0';
-      } else {
-        this->level.mapa[i][j] = ch;
-      }
       if (ch == '0') continue;
       std::string type = entityString(ch);
       if (type == "") continue;
@@ -273,7 +264,6 @@ void Level::setSymbol(const char &old, const char &current) {
     if (e.symbol == old) {
       e.type = entityString(current);
       e.symbol = current;
-      this->level.mapa[e.pos.first][e.pos.second] = current;
     }
   }
 }
@@ -303,12 +293,6 @@ bool Level::isBlocked(int row, int col) {
   return false;
 }
 
-void Level::moveEntityOnMap(const Entity &entity, int oldRow, int oldCol,
-                            int newRow, int newCol) {
-  this->level.mapa[oldRow][oldCol] = '0';
-  this->level.mapa[newRow][newCol] = entity.symbol;
-}
-
 bool Level::tryPush(int row, int col, int dx, int dy) {
   std::vector<Entity *> here;
   for (Entity &e : level.entities)
@@ -336,9 +320,7 @@ bool Level::tryPush(int row, int col, int dx, int dy) {
 
   for (Entity *e : here) {
     if (!e->tags["isPush"]) continue;
-    int oldRow = e->pos.first, oldCol = e->pos.second;
     e->pos = {nextRow, nextCol};
-    moveEntityOnMap(*e, oldRow, oldCol, nextRow, nextCol);
   }
   return true;
 }
@@ -363,8 +345,7 @@ GameState Level::handleInput() {
     if (!history.empty()) {
       auto snap = history.top();
       history.pop();
-      level.mapa = snap.first;
-      level.entities = snap.second;
+      level.entities = snap;
     }
     return GameState::playing;
   }
@@ -375,7 +356,6 @@ GameState Level::handleInput() {
   int dx = static_cast<int>(dir.x);
   int dy = static_cast<int>(dir.y);
 
-  auto snapshotMap = level.mapa;
   auto snapshotEntities = level.entities;
   bool didMove = false;
 
@@ -404,10 +384,7 @@ GameState Level::handleInput() {
     if (canMove && hasPush && !tryPush(newRow, newCol, dx, dy)) canMove = false;
 
     if (canMove) {
-      int oldRow = e.pos.first;
-      int oldCol = e.pos.second;
       e.pos = {newRow, newCol};
-      moveEntityOnMap(e, oldRow, oldCol, newRow, newCol);
       didMove = true;
 
       for (const Entity &ent : level.entities) {
@@ -422,7 +399,7 @@ GameState Level::handleInput() {
   processRemove();
 
   if (didMove) {
-    history.push({snapshotMap, snapshotEntities});
+    history.push(snapshotEntities);
     handleRules();
   }
 
@@ -444,7 +421,6 @@ GameState Level::handleInput() {
 
 void Level::processRemove() {
   std::vector<bool> remove(level.entities.size(), false);
-  bool hasRemove = false;
   for (size_t i = 0; i < level.entities.size(); ++i) {
     for (size_t j = i + 1; j < level.entities.size(); ++j) {
       if (level.entities[i].pos != level.entities[j].pos) {
@@ -455,14 +431,12 @@ void Level::processRemove() {
           level.entities[j].tags.count("isLose") &&
           level.entities[j].tags.at("isLose")) {
         remove[i] = true;
-        hasRemove = true;
       }
       if (level.entities[j].tags.count("isYou") &&
           level.entities[j].tags.at("isYou") &&
           level.entities[i].tags.count("isLose") &&
           level.entities[i].tags.at("isLose")) {
         remove[j] = true;
-        hasRemove = true;
       }
       if (!(level.entities[i].tags.count("isYou") &&
             level.entities[i].tags.at("isYou")) &&
@@ -470,7 +444,6 @@ void Level::processRemove() {
           level.entities[j].tags.at("isBreak")) {
         remove[i] = true;
         remove[j] = true;
-        hasRemove = true;
       }
       if (!(level.entities[j].tags.count("isYou") &&
             level.entities[j].tags.at("isYou")) &&
@@ -478,21 +451,12 @@ void Level::processRemove() {
           level.entities[i].tags.at("isBreak")) {
         remove[i] = true;
         remove[j] = true;
-        hasRemove = true;
       }
     }
   }
   for (int i = static_cast<int>(level.entities.size()) - 1; i >= 0; --i) {
     if (remove[i]) {
       level.entities.erase(level.entities.begin() + i);
-    }
-  }
-  if (hasRemove) {
-    for (auto &row : level.mapa) {
-      std::fill(row.begin(), row.end(), '0');
-    }
-    for (const Entity &e : level.entities) {
-      level.mapa[e.pos.first][e.pos.second] = e.symbol;
     }
   }
 }
