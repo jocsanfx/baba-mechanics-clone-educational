@@ -45,7 +45,7 @@ class Level {
   void drawEntities();
 
   void handleRules();
-  bool tryMove(Entity &mover, int dr, int dc);
+  bool tryMove(Entity& mover, int dr, int dc);
 
   void drawByLayer(const std::set<char>& conjunct, const char& player);
   void drawByLayer(const char& symbol);
