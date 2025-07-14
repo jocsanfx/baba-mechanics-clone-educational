@@ -4,6 +4,7 @@
 #ifndef GAME_HPP
 #define GAME_HPP
 
+#include <string>
 #include "Config.hpp"
 #include "Level.hpp"
 

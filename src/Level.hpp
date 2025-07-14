@@ -61,7 +61,10 @@ class Level {
    */
   GameState handleInput();
 
-  /** @brief Actualiza el estado interno del nivel (animaciones, reglas, etc.) */
+  /** @brief Actualiza el estado interno del nivel (animaciones, 
+   * reglas, etc.) 
+   * 
+   */
   void update();
 
   /** @brief Deshace el último movimiento realizado */
@@ -85,7 +88,9 @@ class Level {
   /** @brief Dibuja todas las entidades del nivel según capas */
   void drawEntities();
 
-  /** @brief Interpreta y aplica las reglas en base a las instrucciones del nivel */
+  /** @brief Interpreta y aplica las reglas en base a las instrucciones del 
+   * nivel 
+   */
   void handleRules();
 
   /**
@@ -116,7 +121,8 @@ class Level {
    */
   char getCurrentPlayer();
 
-  /** @brief Ajusta el tamaño y posición del nivel para centrarse en la pantalla */
+  /** @brief Ajusta el tamaño y posición del nivel para centrarse en la 
+   * pantalla */
   void adjustToFitScreen();
 
   /**
@@ -151,7 +157,7 @@ class Level {
    */
   void setTag(const char& c, const char& a);
 
-   /** @brief Procesa interacciones destructivas entre entidades */
+  /** @brief Procesa interacciones destructivas entre entidades */
   void processRemove();
 
   /**
@@ -166,7 +172,7 @@ class Level {
    * @param c Columna de la celda
    * @return Vector de caracteres presentes en la celda
    */
-  std::vector<char> charsAt (int r, int c);
+  std::vector<char> charsAt(int r, int c);
 };
 
 #endif  // LEVEL_HPP

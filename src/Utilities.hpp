@@ -4,11 +4,11 @@
 #ifndef UTILITIES_HPP
 #define UTILITIES_HPP
 
-#include "Config.hpp"
 #include <string>
 #include <set>
 #include <map>
 #include <vector>
+#include "Config.hpp"
 
 /**
  * @brief Devuelve el símbolo correspondiente a un tipo textual de entidad

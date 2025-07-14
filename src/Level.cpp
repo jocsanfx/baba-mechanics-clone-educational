@@ -3,9 +3,10 @@
 // && May Retana <may.retana@ucr.ac.cr>
 #include "Level.hpp"
 
+#include <string>
 #include "Config.hpp"
 #include "Utilities.hpp"
-#include <string>
+
 
 /**
  * @brief Dibuja el estado actual del nivel en pantalla

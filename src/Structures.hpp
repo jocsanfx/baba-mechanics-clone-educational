@@ -24,7 +24,7 @@ struct TileData {
 
   // Número de filas que contiene la hoja de sprites
   int rows;
-  
+
   // Número de columnas que contiene la hoja de sprites
   int cols;
 
