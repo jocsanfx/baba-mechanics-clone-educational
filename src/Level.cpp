@@ -186,21 +186,6 @@ void Level::drawByLayer(const char& symbol) {
 }
 
 /**
- * @brief Revierte el último movimiento realizado por el jugador
- *
- * Recupera el estado anterior de las entidades desde la pila 'history', 
- * si no está vacía
- * Esto permite implementar una funcionalidad de "deshacer"
- */
-void Level::undo() {
-  if (!this->history.empty()) {
-    auto prevEntities = this->history.top();
-    this->level.entities = prevEntities;
-    this->history.pop();
-  }
-}
-
-/**
  * @brief Carga el sprite sheet y almacena su textura y propiedades 
  * (filas, columnas, tamaño).
  *
@@ -469,30 +454,6 @@ void Level::adjustToFitScreen() {
   float totalMapHeight = this->level.rows * this->level.cell_heigth;
   this->offsetX = (GetScreenWidth() - totalMapWidth) / 2.0f;
   this->offsetY = (GetScreenHeight() - totalMapHeight) / 2.0f;
-}
-
-/**
- * @brief Verifica si una celda está bloqueada por una entidad con la 
- * etiqueta "isStop"
- *
- * Esta función revisa si alguna entidad en la posición dada tiene 
- * la etiqueta "isStop" activada. En ese caso, se considera que 
- * el movimiento hacia esa celda está bloqueado
- *
- * @param row Fila de la celda a verificar
- * @param col Columna de la celda a verificar
- * @return true Si la celda está bloqueada
- * @return false Si no hay bloqueo
- */
-bool Level::isBlocked(int row, int col) {
-  for (const Entity& e : this->level.entities) {
-    if (e.pos == std::make_pair(row, col)) {
-      if (e.tags.count("isStop") && e.tags.at("isStop")) {
-        return true;
-      }
-    }
-  }
-  return false;
 }
 
 /**

@@ -11,14 +11,6 @@
 #include "Config.hpp"
 
 /**
- * @brief Devuelve el símbolo correspondiente a un tipo textual de entidad
- *
- * @param type Tipo textual de la entidad (por ejemplo, "player", "rock")
- * @return Símbolo que representa gráficamente a la entidad
- */
-char getSymbolForEntity(const std::string& type);
-
-/**
  * @brief Devuelve el tipo textual asociado a un símbolo de entidad
  *
  * @param c Símbolo gráfico de la entidad

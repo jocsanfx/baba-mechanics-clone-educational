@@ -67,9 +67,6 @@ class Level {
    */
   void update();
 
-  /** @brief Deshace el último movimiento realizado */
-  void undo();
-
   /**
    * @brief Dibuja el estado actual del juego en pantalla
    * @param state Estado actual del juego (jugando, ganado, perdido)
@@ -125,14 +122,6 @@ class Level {
    * pantalla 
    */
   void adjustToFitScreen();
-
-  /**
-   * @brief Indica si una celda está bloqueada por una entidad con "isStop"
-   * @param row Fila a revisar
-   * @param col Columna a revisar
-   * @return true si la celda está bloqueada
-   */
-  bool isBlocked(int row, int col);
 
   /**
    * @brief Intenta empujar entidades en una dirección específica
