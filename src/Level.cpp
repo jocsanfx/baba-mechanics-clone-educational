@@ -15,7 +15,7 @@ void Level::draw(GameState state, const int level_counter) {
   if (state == GameState::lost) {
     ClearBackground(BLACK);
 
-    const char *texto = "PERDISTE";
+    const char* texto = "PERDISTE";
     int fontSize = FONT_SIZE;
     Color colorTexto = RED;
 
@@ -25,7 +25,7 @@ void Level::draw(GameState state, const int level_counter) {
 
     DrawText(texto, textPosition.x, textPosition.y, fontSize, colorTexto);
 
-    const char *sugerencia = "Presione ENTER o R para reiniciar";
+    const char* sugerencia = "Presione ENTER o R para reiniciar";
     int smallFontSize = FONT_SIZE / 3;
     Vector2 instSize =
         MeasureTextEx(GetFontDefault(), sugerencia, smallFontSize, 1);
@@ -34,7 +34,7 @@ void Level::draw(GameState state, const int level_counter) {
   } else if (state == GameState::won) {
     ClearBackground(BLACK);
 
-    const char *texto = (level_counter != MAX_LEVEL) ? "GANASTE" : "FIN DEL JUEGO";
+    const char* texto = (level_counter != MAX_LEVEL) ? "GANASTE" : "FIN DEL JUEGO";
     int fontSize = FONT_SIZE;
     Color colorTexto = GREEN;
 
@@ -44,7 +44,7 @@ void Level::draw(GameState state, const int level_counter) {
 
     DrawText(texto, textPosition.x, textPosition.y, fontSize, colorTexto);
 
-    const char *sugerencia = (level_counter != MAX_LEVEL)
+    const char* sugerencia = (level_counter != MAX_LEVEL)
                                  ? "Presione ENTER para continuar"
                                  : "Gracias por jugar";
     int smallFontSize = FONT_SIZE / 3;
