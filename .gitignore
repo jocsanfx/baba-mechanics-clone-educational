@@ -3,6 +3,7 @@
 *.build
 build/
 bin/
+doc/
 .vscode/
 *.json
 /makefile
