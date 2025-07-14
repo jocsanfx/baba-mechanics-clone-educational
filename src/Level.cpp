@@ -21,16 +21,15 @@ void Level::draw(GameState state, const int level_counter) {
 
     Vector2 textSize = MeasureTextEx(GetFontDefault(), texto, fontSize, 1);
     Vector2 textPosition = {(GetScreenWidth() - textSize.x) / 2,
-                            (GetScreenHeight() - textSize.y) / 2};
+      (GetScreenHeight() - textSize.y) / 2};
 
     DrawText(texto, textPosition.x, textPosition.y, fontSize, colorTexto);
 
     const char* sugerencia = "Presione ENTER o R para reiniciar";
     int smallFontSize = FONT_SIZE / 3;
-    Vector2 instSize =
-        MeasureTextEx(GetFontDefault(), sugerencia, smallFontSize, 1);
+    Vector2 instSize = MeasureTextEx(GetFontDefault(), sugerencia, smallFontSize, 1);
     DrawText(sugerencia, (GetScreenWidth() - instSize.x) / 2,
-             textPosition.y + textSize.y + 30, smallFontSize, WHITE);
+      textPosition.y + textSize.y + 30, smallFontSize, WHITE);
   } else if (state == GameState::won) {
     ClearBackground(BLACK);
 
@@ -40,18 +39,16 @@ void Level::draw(GameState state, const int level_counter) {
 
     Vector2 textSize = MeasureTextEx(GetFontDefault(), texto, fontSize, 1);
     Vector2 textPosition = {(GetScreenWidth() - textSize.x) / 2,
-                            (GetScreenHeight() - textSize.y) / 2};
+      (GetScreenHeight() - textSize.y) / 2};
 
     DrawText(texto, textPosition.x, textPosition.y, fontSize, colorTexto);
 
     const char* sugerencia = (level_counter != MAX_LEVEL)
-                                 ? "Presione ENTER para continuar"
-                                 : "Gracias por jugar";
+      ? "Presione ENTER para continuar": "Gracias por jugar";
     int smallFontSize = FONT_SIZE / 3;
-    Vector2 instSize =
-        MeasureTextEx(GetFontDefault(), sugerencia, smallFontSize, 1);
+    Vector2 instSize = MeasureTextEx(GetFontDefault(), sugerencia, smallFontSize, 1);
     DrawText(sugerencia, (GetScreenWidth() - instSize.x) / 2,
-             textPosition.y + textSize.y + 30, smallFontSize, WHITE);
+      textPosition.y + textSize.y + 30, smallFontSize, WHITE);
   } else {
     ClearBackground(this->GREY);
     int mapW = this->level.cols * this->level.cell_width;
@@ -65,16 +62,16 @@ void Level::draw(GameState state, const int level_counter) {
 
 void Level::drawTail(int id, int row, int col) {
   Rectangle src = {
-      static_cast<float>((id % this->tiles.cols)) * this->tiles.width,
-      static_cast<float>(id / this->tiles.cols) * this->tiles.height,
-      static_cast<float>(this->tiles.width),
-      static_cast<float>(this->tiles.height)};
+    static_cast<float>((id % this->tiles.cols)) * this->tiles.width,
+    static_cast<float>(id / this->tiles.cols) * this->tiles.height,
+    static_cast<float>(this->tiles.width),
+    static_cast<float>(this->tiles.height)};
 
   Rectangle dst = {
-      this->offsetX + static_cast<float>(col * this->level.cell_width),
-      this->offsetY + static_cast<float>(row * this->level.cell_heigth),
-      static_cast<float>(this->level.cell_width),
-      static_cast<float>(this->level.cell_heigth)};
+    this->offsetX + static_cast<float>(col * this->level.cell_width),
+    this->offsetY + static_cast<float>(row * this->level.cell_heigth),
+    static_cast<float>(this->level.cell_width),
+    static_cast<float>(this->level.cell_heigth)};
   Vector2 origin = {0.0f, 0.0f};
   DrawTexturePro(this->tiles.texture, src, dst, origin, 0, WHITE);
 }
@@ -148,7 +145,7 @@ void Level::loadTileIDs() {
 
 void Level::loadLevel(const int level_counter) {
   std::string path =
-      PATH_LEVEL_TO_LOAD + std::to_string(level_counter) + EXT_LEVEL_TO_LOAD;
+    PATH_LEVEL_TO_LOAD + std::to_string(level_counter) + EXT_LEVEL_TO_LOAD;
   std::ifstream input(path);
   input >> this->level.rows >> this->level.cols;
   input.ignore();
@@ -164,9 +161,9 @@ void Level::loadLevel(const int level_counter) {
       std::string type = entityString(ch);
       if (type == "") continue;
       std::map<std::string, bool> tags = {
-          {"isPush", false}, {"isYou", false},  {"isLose", false},
-          {"isWin", false},  {"isStop", false}, {"isBreak", false}};
-      this->level.entities.push_back(
+        {"isPush", false}, {"isYou", false},  {"isLose", false},
+        {"isWin", false},  {"isStop", false}, {"isBreak", false}};
+        this->level.entities.push_back(
           Entity{entityId++, {i, j}, type, tags, ch});
     }
   }
@@ -179,7 +176,7 @@ void Level::loadLevel(const int level_counter) {
 void Level::handleRules() {
   for (Entity &e : level.entities) {
     e.tags = {{"isPush", false}, {"isYou", false},  {"isLose", false},
-              {"isWin", false},  {"isStop", false}, {"isBreak", false}};
+      {"isWin", false},  {"isStop", false}, {"isBreak", false}};
     if (e.type == "floor") e.tags.clear();
     if (e.type == "instruction") e.tags["isPush"] = true;
   }
@@ -196,7 +193,7 @@ void Level::handleRules() {
             setSymbol(relation.at(l), relation.at(r));
           if (relation.count(l) && action.count(r)) setTag(relation.at(l), r);
         }
-    }
+      }
 
     if (e.pos.first - 1 >= 0 && e.pos.first + 1 < level.rows) {
       auto upper = charsAt(e.pos.first - 1, e.pos.second);
@@ -270,9 +267,9 @@ void Level::setSymbol(const char &old, const char &current) {
 
 void Level::adjustToFitScreen() {
   float scaleW = static_cast<float>(GetScreenWidth()) /
-                 (this->level.cols * this->tiles.width) * SCALE_FACTOR;
+    (this->level.cols * this->tiles.width) * SCALE_FACTOR;
   float scaleH = static_cast<float>(GetScreenHeight()) /
-                 (this->level.rows * this->tiles.height) * SCALE_FACTOR;
+    (this->level.rows * this->tiles.height) * SCALE_FACTOR;
   float finalScale = std::min(scaleW, scaleH);
   this->level.cell_width = this->tiles.width * finalScale;
   this->level.cell_heigth = this->tiles.height * finalScale;
@@ -313,7 +310,7 @@ bool Level::tryPush(int row, int col, int dx, int dy) {
   int nextRow = row + dy;
   int nextCol = col + dx;
   if (nextRow < 0 || nextRow >= level.rows || nextCol < 0 ||
-      nextCol >= level.cols)
+    nextCol >= level.cols)
     return false;
 
   if (!tryPush(nextRow, nextCol, dx, dy)) return false;
