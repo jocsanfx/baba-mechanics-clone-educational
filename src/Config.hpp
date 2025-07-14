@@ -89,7 +89,7 @@
 
 /**
  * @enum GameState
- * @brief Representa el estado actual del juego.
+ * @brief Representa el estado actual del juego
  */
 enum class GameState { playing, won, lost };
 
