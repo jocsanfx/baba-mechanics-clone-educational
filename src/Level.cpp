@@ -1,10 +1,30 @@
+// Copyright 2025 Jocsan Fernández <jocsan.fernandezsalas@ucr.ac.cr>
+// && Isaac Araya <isaac.arayaquesada@ucr.ac.cr>
+// && May Retana <may.retana@ucr.ac.cr>
 #include "Level.hpp"
 
+#include <string>
 #include "Config.hpp"
 #include "Utilities.hpp"
-#include <string>
 
+
+/**
+ * @brief Dibuja el estado actual del nivel en pantalla
+ *
+ * Esta función maneja tres posibles estados del juego: 
+ * - `GameState::lost`: Muestra la pantalla de derrota
+ * - `GameState::won`: Muestra la pantalla de victoria o fin del juego
+ * - `GameState::playing`: Dibuja el mapa y las entidades activas
+ *
+ * También se encarga de actualizar la animación del juego en base a los 
+ * FPS definidos
+ *
+ * @param state Estado actual del juego (jugando, ganado o perdido)
+ * @param level_counter Número del nivel actual para mostrar mensajes 
+ * correspondientes
+ */
 void Level::draw(GameState state, const int level_counter) {
+  // Incrementa el contador de fotogramas para animaciones
   ++this->frameCount;
   if (this->frameCount >= ANIMATION_BY_FPS) {
     this->frameCount = 0;
@@ -13,6 +33,7 @@ void Level::draw(GameState state, const int level_counter) {
 
   BeginDrawing();
 
+  // Si el jugador perdió, se muestra pantalla de derrota
   if (state == GameState::lost) {
     ClearBackground(BLACK);
 
@@ -32,6 +53,7 @@ void Level::draw(GameState state, const int level_counter) {
       smallFontSize, 1);
     DrawText(sugerencia, (GetScreenWidth() - instSize.x) / 2,
       textPosition.y + textSize.y + 30, smallFontSize, WHITE);
+  // Si ganó el nivel
   } else if (state == GameState::won) {
     ClearBackground(BLACK);
 
@@ -53,6 +75,7 @@ void Level::draw(GameState state, const int level_counter) {
       smallFontSize, 1);
     DrawText(sugerencia, (GetScreenWidth() - instSize.x) / 2,
       textPosition.y + textSize.y + 30, smallFontSize, WHITE);
+  // Si se está jugando normalmente
   } else {
     ClearBackground(this->GREY);
     int mapW = this->level.cols * this->level.cell_width;
@@ -64,6 +87,17 @@ void Level::draw(GameState state, const int level_counter) {
   EndDrawing();
 }
 
+/**
+ * @brief Dibuja un sprite individual (tile) en la posición dada
+ *
+ * Utiliza un identificador de tile (`id`) para determinar qué parte del sprite 
+ * sheet se debe dibujar, y calcula la posición de destino en pantalla usando 
+ * el tamaño de cada celda y los desplazamientos del nivel
+ *
+ * @param id ID del sprite dentro del sprite sheet
+ * @param row Fila donde se debe dibujar el sprite
+ * @param col Columna donde se debe dibujar el sprite
+ */
 void Level::drawTail(int id, int row, int col) {
   Rectangle src = {
     static_cast<float>((id % this->tiles.cols)) * this->tiles.width,
@@ -80,10 +114,20 @@ void Level::drawTail(int id, int row, int col) {
   DrawTexturePro(this->tiles.texture, src, dst, origin, 0, WHITE);
 }
 
+/**
+ * @brief Dibuja todas las entidades del nivel en el orden correcto por capas
+ *
+ * La función primero dibuja los elementos del fondo, luego las instrucciones,
+ * después los objetos válidos (como paredes, cajas, etc.), la bandera (meta)
+ * y finalmente el jugador actual
+ */
 void Level::drawEntities() {
+  // Determina el avatar actual controlado por el jugador
   char currentAvatar = getCurrentPlayer();
 
+  // Dibuja la capa de fondo
   drawByLayer(backgrounds, currentAvatar);
+  // Dibuja las instrucciones (con animación)
   for (const Entity& e : this->level.entities) {
     int id = 0;
     if (e.type == "instruction") {
@@ -92,11 +136,25 @@ void Level::drawEntities() {
       this->drawTail(id, e.pos.first, e.pos.second);
     }
   }
+
+  // Dibuja objetos válidos como obstáculos o interactivos
   drawByLayer(valid_objects, currentAvatar);
+  // Dibuja la bandera (símbolo de victoria)
   drawByLayer(FLAG);
+  // Dibuja el avatar controlado por el jugador
   drawByLayer(currentAvatar);
 }
 
+/**
+ * @brief Dibuja todas las entidades cuyo símbolo pertenece al conjunto dado,
+ * excluyendo al jugador
+ *
+ * Esta función es útil para dibujar por capas (fondo, objetos, etc.) 
+ * sin interferir con el avatar del jugador
+ *
+ * @param conjunct Conjunto de símbolos a dibujar
+ * @param player Símbolo actual del jugador, que debe ser omitido
+ */
 void Level::drawByLayer(const std::set<char>& conjunct, const char& player) {
   for (const Entity& e : this->level.entities) {
     int id = 0;
@@ -108,6 +166,14 @@ void Level::drawByLayer(const std::set<char>& conjunct, const char& player) {
   }
 }
 
+/**
+ * @brief Dibuja todas las entidades con un símbolo específico
+ *
+ * Esta función se utiliza para dibujar una capa particular, como la bandera
+ * o el jugador, según su símbolo
+ *
+ * @param symbol Símbolo de la entidad a dibujar
+ */
 void Level::drawByLayer(const char& symbol) {
   for (const Entity& e : this->level.entities) {
     int id = 0;
@@ -119,6 +185,13 @@ void Level::drawByLayer(const char& symbol) {
   }
 }
 
+/**
+ * @brief Revierte el último movimiento realizado por el jugador
+ *
+ * Recupera el estado anterior de las entidades desde la pila 'history', 
+ * si no está vacía
+ * Esto permite implementar una funcionalidad de "deshacer"
+ */
 void Level::undo() {
   if (!this->history.empty()) {
     auto prevEntities = this->history.top();
@@ -127,6 +200,13 @@ void Level::undo() {
   }
 }
 
+/**
+ * @brief Carga el sprite sheet y almacena su textura y propiedades 
+ * (filas, columnas, tamaño).
+ *
+ * Esta función lee la imagen desde la ruta especificada por 'SPRITE_SHEET_PATH'
+ * y configura los valores necesarios para representar cada tile individual.
+ */
 void Level::loadTextures() {
   Image image = LoadImage(SPRITE_SHEET_PATH);
   this->tiles.texture = LoadTextureFromImage(image);
@@ -137,6 +217,13 @@ void Level::loadTextures() {
   this->tiles.height = SPRITE_SHEET_HEIGHT;
 }
 
+/**
+ * @brief Carga el mapeo de símbolos a IDs de tiles desde un archivo
+ *
+ * Lee el archivo especificado por `TILE_ID_PATH`, que contiene pares de
+ * carácter e identificador numérico de tile, y los almacena en el mapa 
+ * 'tiles_id'
+ */
 void Level::loadTileIDs() {
   std::ifstream idInput(TILE_ID_PATH);
   char symbol;
@@ -147,6 +234,15 @@ void Level::loadTileIDs() {
   idInput.close();
 }
 
+/**
+ * @brief Carga un nivel desde un archivo de texto
+ *
+ * Esta función lee el archivo que representa el nivel correspondiente 
+ * al número dado, inicializa las entidades, limpia la historia de 
+ * movimientos y ajusta la pantalla
+ *
+ * @param level_counter Número del nivel a cargar
+ */
 void Level::loadLevel(const int level_counter) {
   std::string path =
     PATH_LEVEL_TO_LOAD + std::to_string(level_counter) + EXT_LEVEL_TO_LOAD;
@@ -181,6 +277,13 @@ void Level::loadLevel(const int level_counter) {
   this->handleRules();
 }
 
+/**
+ * @brief Procesa las reglas del nivel con base en las instrucciones presentes
+ *
+ * Restablece todas las etiquetas (`tags`) de las entidades y evalúa estructuras
+ * gramaticales tipo "A IS B" tanto en horizontal como vertical para definir 
+ * comportamientos dinámicos del juego (como `isYou`, `isWin`, `isStop`, etc.)
+ */
 void Level::handleRules() {
   for (Entity& e : level.entities) {
     e.tags = {{"isPush", false}, {"isYou", false},  {"isLose", false},
@@ -228,6 +331,17 @@ void Level::handleRules() {
     }
   }
 
+  /**
+ * @brief Devuelve los símbolos que están en una celda específica del 
+ * tablero
+ *
+ * Si no hay ninguna entidad en esa celda, se devuelve un vector con 
+ * un solo elemento '0'
+ *
+ * @param row Fila a consultar
+ * @param col Columna a consultar
+ * @return std::vector<char> Vector con los símbolos encontrados en la celda
+ */
 std::vector<char> Level::charsAt(int row, int col) {
   std::vector<char> vec;
   for (const Entity& ent : this->level.entities)
@@ -240,6 +354,18 @@ std::vector<char> Level::charsAt(int row, int col) {
   return vec;
 }
 
+/**
+ * @brief Asigna una etiqueta (como "isYou", "isWin", etc.) a todas 
+ * las entidades con el símbolo especificado
+ *
+ * Esta función es utilizada durante la evaluación de las reglas 
+ * para activar comportamientos
+ * Tiene una condición especial para el símbolo '~', al cual también 
+ * se le activa "isStop"
+ *
+ * @param c Símbolo de la entidad a modificar
+ * @param a Acción representada por una letra ('W', 'S', 'L', etc.)
+ */
 void Level::setTag(const char& c, const char& a) {
   for (Entity& e : this->level.entities) {
     if (e.symbol == c) {
@@ -251,6 +377,19 @@ void Level::setTag(const char& c, const char& a) {
   }
 }
 
+/**
+ * @brief Intenta mover una entidad en una dirección específica
+ *
+ * Si la casilla destino contiene entidades con la etiqueta "isPush", 
+ * se intenta moverlas recursivamente. Si hay `isStop` sin "isPush",
+ * el movimiento se bloquea
+ *
+ * @param mover Entidad que se desea mover
+ * @param dr Dirección de movimiento en filas (-1, 0, 1)
+ * @param dc Dirección de movimiento en columnas (-1, 0, 1)
+ * @return true Si el movimiento fue exitoso
+ * @return false Si el movimiento fue bloqueado
+ */
 bool Level::tryMove(Entity& mover, int dr, int dc) {
   int nr = mover.pos.first + dr;
   int nc = mover.pos.second + dc;
@@ -293,6 +432,15 @@ bool Level::tryMove(Entity& mover, int dr, int dc) {
   return true;
 }
 
+/**
+ * @brief Cambia el símbolo y tipo de todas las entidades con un símbolo dado
+ *
+ * Usado principalmente al procesar reglas tipo "WALL IS FLAG", donde las 
+ * entidades del tipo anterior cambian a un nuevo tipo y símbolo
+ *
+ * @param old Símbolo actual que se desea reemplazar
+ * @param current Nuevo símbolo que se aplicará a las entidades encontradas
+ */
 void Level::setSymbol(const char& old, const char& current) {
   for (Entity& e : this->level.entities) {
     if (e.symbol == old) {
@@ -302,6 +450,13 @@ void Level::setSymbol(const char& old, const char& current) {
   }
 }
 
+/**
+ * @brief Ajusta el tamaño de las celdas del nivel para que se escalen
+ * proporcionalmente a la pantalla
+ *
+ * Calcula el factor de escala en ancho y alto, y centra el mapa en pantalla.
+ * Este método se ejecuta una vez al cargar el nivel
+ */
 void Level::adjustToFitScreen() {
   float scaleW = static_cast<float>(GetScreenWidth()) /
     (this->level.cols * this->tiles.width) * SCALE_FACTOR;
@@ -316,6 +471,19 @@ void Level::adjustToFitScreen() {
   this->offsetY = (GetScreenHeight() - totalMapHeight) / 2.0f;
 }
 
+/**
+ * @brief Verifica si una celda está bloqueada por una entidad con la 
+ * etiqueta "isStop"
+ *
+ * Esta función revisa si alguna entidad en la posición dada tiene 
+ * la etiqueta "isStop" activada. En ese caso, se considera que 
+ * el movimiento hacia esa celda está bloqueado
+ *
+ * @param row Fila de la celda a verificar
+ * @param col Columna de la celda a verificar
+ * @return true Si la celda está bloqueada
+ * @return false Si no hay bloqueo
+ */
 bool Level::isBlocked(int row, int col) {
   for (const Entity& e : this->level.entities) {
     if (e.pos == std::make_pair(row, col)) {
@@ -327,6 +495,20 @@ bool Level::isBlocked(int row, int col) {
   return false;
 }
 
+/**
+ * @brief Intenta empujar las entidades en una dirección desde una celda
+ *
+ * Se usa para procesar mecánicas del tipo "isPush". Intenta mover recursivamente
+ * las entidades apiladas en la dirección dada, verificando que no haya bloqueo
+ * por "isStop" sin "isPush"
+ *
+ * @param row Fila actual de la entidad que empuja
+ * @param col Columna actual de la entidad que empuja
+ * @param dx Dirección horizontal del empuje (-1 izquierda, 1 derecha)
+ * @param dy Dirección vertical del empuje (-1 arriba, 1 abajo)
+ * @return true Si todas las entidades pudieron ser empujadas correctamente
+ * @return false Si alguna entidad no pudo ser empujada
+ */
 bool Level::tryPush(int row, int col, int dx, int dy) {
   std::vector<Entity *> here;
   for (Entity& e : level.entities)
@@ -372,6 +554,15 @@ bool Level::tryPush(int row, int col, int dx, int dy) {
   return true;
 }
 
+/**
+ * @brief Maneja la entrada del teclado y actualiza el estado del juego
+ *
+ * Procesa las teclas de movimiento (flechas) para entidades con "isYou", 
+ * ejecuta empujes ("tryPush"), evalúa colisiones con "isWin" y permite 
+ * deshacer con "Z". También actualiza las reglas luego del movimiento
+ *
+ * @return GameState Estado del juego resultante (playing, won o lost)
+ */
 GameState Level::handleInput() {
   Vector2 dir = {0, 0};
   if (IsKeyPressed(KEY_RIGHT)) {
@@ -478,6 +669,14 @@ GameState Level::handleInput() {
   return result;
 }
 
+/**
+ * @brief Elimina entidades del juego según interacciones destructivas
+ *
+ * Esta función procesa colisiones entre entidades que ocupan la misma posición
+ * Se eliminan entidades según las siguientes reglas:
+ * - Si una entidad "isYou" colisiona con una "isLose", se elimina "isYou"
+ * - Si una entidad no es "isYou" y colisiona con una "isBreak", ambas se eliminan
+ */
 void Level::processRemove() {
   std::vector<bool> remove(level.entities.size(), false);
   for (size_t i = 0; i < level.entities.size(); ++i) {
@@ -520,6 +719,16 @@ void Level::processRemove() {
   }
 }
 
+/**
+ * @brief Actualiza el sprite del jugador según la dirección presionada
+ *
+ * Cambia la dirección del sprite del personaje controlado por el jugador 
+ * ("isYou"), solo si el símbolo actual representa una variante 
+ * direccional de BABA
+ *
+ * @param dir Dirección del movimiento: 'w' (arriba), 'a' (izquierda), 
+ * 's' (abajo), 'd' (derecha)
+ */
 void Level::updatePlayerSprite(const char& dir) {
   std::string rule = "isYou";
   char currentAvatar = getCurrentPlayer();
@@ -547,6 +756,15 @@ void Level::updatePlayerSprite(const char& dir) {
   }
 }
 
+/**
+ * @brief Obtiene el símbolo del jugador actual
+ *
+ * Busca entre todas las entidades aquella marcada con la etiqueta "isYou"
+ * y devuelve su símbolo. Se asume que hay al menos una entidad con esa 
+ * etiqueta
+ *
+ * @return char Símbolo de la entidad controlada por el jugador
+ */
 char Level::getCurrentPlayer() {
   std::string rule = "isYou";
   char currentAvatar;

@@ -12,8 +12,8 @@
  * definen el comportamiento visual y lógico del juego
  */
 
-#include <string>
 #include <raylib.h>
+#include <string>
 
 // Símbolo por defecto del jugador
 #define PLAYER_DEFAULT_SYMBOL '*'
@@ -89,7 +89,7 @@
 
 /**
  * @enum GameState
- * @brief Representa el estado actual del juego.
+ * @brief Representa el estado actual del juego
  */
 enum class GameState { playing, won, lost };
 
