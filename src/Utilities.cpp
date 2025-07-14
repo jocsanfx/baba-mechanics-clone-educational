@@ -1,21 +1,51 @@
 #include "Utilities.hpp"
 
 char getSymbolForEntity(const std::string &type) {
-  if (type == "player") { return '*'; }
-  if (type == "instruction") { return 'I'; }
-  if (type == "rock") { return '$'; }
-  if (type == "flag") { return '&'; }
-  if (type == "wall") { return '#'; }
-  if (type == "water") { return '~'; }
-  if (type == "lava") { return '-'; }
-  if (type == "skull") { return '+'; }
-  if (type == "grass") { return 'h'; }
-  if (type == "flower") { return 'f'; }
-  if (type == "floor") { return 'Z'; }
-  if (type == "brick") { return 'b'; }
-  if (type == "melt") { return 'M'; }
-  if (type == "defeat") { return 'D'; }
-  if (type == "sink") { return 'K'; }
+  if (type == "player") {
+    return '*';
+  }
+  if (type == "instruction") {
+    return 'I';
+  }
+  if (type == "rock") {
+    return '$';
+  }
+  if (type == "flag") {
+    return '&';
+  }
+  if (type == "wall") {
+    return '#';
+  }
+  if (type == "water") {
+    return '~';
+  }
+  if (type == "lava") {
+    return '-';
+  }
+  if (type == "skull") {
+    return '+';
+  }
+  if (type == "grass") {
+    return 'h';
+  }
+  if (type == "flower") {
+    return 'f';
+  }
+  if (type == "floor") {
+    return 'Z';
+  }
+  if (type == "brick") {
+    return 'b';
+  }
+  if (type == "melt") {
+    return 'M';
+  }
+  if (type == "defeat") {
+    return 'D';
+  }
+  if (type == "sink") {
+    return 'K';
+  }
   return '0';
 }
 
@@ -54,7 +84,7 @@ std::string entityString(char c) {
     case 'b':
       return "brick";
       break;
-    
+
     case 'M':
     case 'B':
     case 'C':

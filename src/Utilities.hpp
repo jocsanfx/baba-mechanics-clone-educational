@@ -7,7 +7,7 @@
 #include <map>
 #include <vector>
 
-char getSymbolForEntity(const std::string &type);
+char getSymbolForEntity(const std::string& type);
 std::string entityString(char c);
 inline const std::map<char, char> relation {
   {'B', '*'},
