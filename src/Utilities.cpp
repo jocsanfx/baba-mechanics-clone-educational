@@ -54,7 +54,7 @@ std::string entityString(char c) {
     case 'b':
       return "brick";
       break;
-    
+
     case 'M':
     case 'B':
     case 'C':
