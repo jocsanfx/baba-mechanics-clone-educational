@@ -22,7 +22,8 @@ Ejemplo de jugabilidad en: [Is Baba is You for You?](https://www.youtube.com/sho
 El proyecto está dividido en 2 carpetas principales:
 
 1. **La carpeta `assets`**: contiene las subcarpetas `data` e `images`. En `data` se almacenan los primeros 8 niveles del juego, modelados en formato `.txt`. Por otro lado, la carpeta `images` contiene `baba.png`, una imagen compuesta que muestra 3 sprites de cada elemento del juego, pensada para facilitar la animación de los objetos.
-![Sprites del juego](assets/images/baba.png)
+
+   ![Sprites del juego](assets/images/baba.png)
 
 2. **La carpeta `src`**: contiene todos los archivos fuente del proyecto en c++. Aquí se encuentran definidas las clases principales del juego como Game, Level, Utilities, Structures y Config.
 
@@ -57,12 +58,14 @@ Además se puede realizar la verificación del linter mediante el comando
 
 El jugador será capaz de mover objetos a su alrededor en las cuatro direcciones, bajo ciertas condiciones las cuales a su vez pueden ser construidas por bloques de reglas. El formato que estas deben seguir es el siguiente: **objeto**, **is**, **verbo**. Como por ejemplo "Rock is push", que permite empujar una roca.
 
-![Regla de Ejemplo](imagenesReadme/reglaEjemplo.png)
+   ![Regla de Ejemplo](imagenesReadme/reglaEjemplo.png)
 
 Además, es posible destruir reglas de objetos que bloquean ciertas acciones al jugador. Por ejemplo, en la regla "Wall is Stop", el jugador estará encerrado. Mas si se desarma esa regla, será posible atravesar las paredes.
-![Pared de Ejemplo](imagenesReadme/paredEjemplo.png)
+
+   ![Pared de Ejemplo](imagenesReadme/paredEjemplo.png)
 
 El juego se pierde si la regla que le da identidad al jugador es desarmada. Es decir, si se juega como Baba y se rompe la instrucción "Baba is You" es como si se autoeliminara.
+
 ![BabaEJ](imagenesReadme/BabaEj.png)
 ![Perder](imagenesReadme/perderEjemplo.png)
 
