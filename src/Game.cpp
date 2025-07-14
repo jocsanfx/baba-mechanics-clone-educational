@@ -24,7 +24,8 @@ void Game::run() {
 
     level.draw(state, this->level_counter);
 
-    if ((this->state == GameState::lost && IsKeyPressed(KEY_ENTER)) || IsKeyPressed(KEY_R)) {
+    if ((this->state == GameState::lost && IsKeyPressed(KEY_ENTER)) || 
+      IsKeyPressed(KEY_R)) {
       this->level.loadLevel(this->level_counter);
       this->state = GameState::playing;
     } else if (this->state == GameState::won && IsKeyPressed(KEY_ENTER)) {

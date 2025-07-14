@@ -80,7 +80,7 @@ void Level::drawEntities() {
   char currentAvatar = getCurrentPlayer();
 
   drawByLayer(backgrounds, currentAvatar);
-  for (const Entity &e : this->level.entities) {
+  for (const Entity& e : this->level.entities) {
     int id = 0;
     if (e.type == "instruction") {
       id = this->level.tiles_id[e.symbol];
@@ -94,7 +94,7 @@ void Level::drawEntities() {
 }
 
 void Level::drawByLayer(const std::set<char>& conjunct, const char& player) {
-  for (const Entity &e : this->level.entities) {
+  for (const Entity& e : this->level.entities) {
     int id = 0;
     if (e.symbol != player && conjunct.count(e.symbol) == 1) {
       id = this->level.tiles_id[e.symbol];
@@ -105,7 +105,7 @@ void Level::drawByLayer(const std::set<char>& conjunct, const char& player) {
 }
 
 void Level::drawByLayer(const char& symbol) {
-  for (const Entity &e : this->level.entities) {
+  for (const Entity& e : this->level.entities) {
     int id = 0;
     if (e.symbol == symbol) {
       id = this->level.tiles_id[e.symbol];
@@ -157,9 +157,13 @@ void Level::loadLevel(const int level_counter) {
     std::getline(input, line);
     for (int j = 0; j < this->level.cols; ++j) {
       char ch = (j < static_cast<int>(line.size())) ? line[j] : '0';
-      if (ch == '0') continue;
+      if (ch == '0') {
+        continue;
+      }
       std::string type = entityString(ch);
-      if (type == "") continue;
+      if (type == "") {
+        continue;
+      } 
       std::map<std::string, bool> tags = {
         {"isPush", false}, {"isYou", false},  {"isLose", false},
         {"isWin", false},  {"isStop", false}, {"isBreak", false}};
@@ -174,15 +178,21 @@ void Level::loadLevel(const int level_counter) {
 }
 
 void Level::handleRules() {
-  for (Entity &e : level.entities) {
+  for (Entity& e : level.entities) {
     e.tags = {{"isPush", false}, {"isYou", false},  {"isLose", false},
       {"isWin", false},  {"isStop", false}, {"isBreak", false}};
-    if (e.type == "floor") e.tags.clear();
-    if (e.type == "instruction") e.tags["isPush"] = true;
+    if (e.type == "floor") {
+      e.tags.clear();
+    } 
+    if (e.type == "instruction") {
+      e.tags["isPush"] = true;
+    }
   }
 
-  for (Entity &e : level.entities) {
-    if (e.symbol != 'I') continue;
+  for (Entity& e : level.entities) {
+    if (e.symbol != 'I') {
+      continue;
+    } 
 
     if (e.pos.second - 1 >= 0 && e.pos.second + 1 < level.cols) {
       auto left = charsAt(e.pos.first, e.pos.second - 1);
@@ -200,24 +210,31 @@ void Level::handleRules() {
       auto under = charsAt(e.pos.first + 1, e.pos.second);
       for (char u : upper)
         for (char d : under) {
-          if (relation.count(u) && relation.count(d))
+          if (relation.count(u) && relation.count(d)) {
             setSymbol(relation.at(u), relation.at(d));
-          if (relation.count(u) && action.count(d)) setTag(relation.at(u), d);
+          }
+          if (relation.count(u) && action.count(d)) {
+            setTag(relation.at(u), d);
+          }
         }
+      }
     }
   }
-}
 
 std::vector<char> Level::charsAt(int row, int col) {
   std::vector<char> vec;
-  for (const Entity &ent : this->level.entities)
-    if (ent.pos == std::make_pair(row, col)) vec.push_back(ent.symbol);
-  if (vec.empty()) vec.push_back('0');
+  for (const Entity& ent : this->level.entities)
+    if (ent.pos == std::make_pair(row, col)) {
+      vec.push_back(ent.symbol);
+    } 
+  if (vec.empty()) {
+    vec.push_back('0');
+  }
   return vec;
 };
 
-void Level::setTag(const char &c, const char &a) {
-  for (Entity &e : this->level.entities) {
+void Level::setTag(const char& c, const char& a) {
+  for (Entity& e : this->level.entities) {
     if (e.symbol == c) {
       e.tags[action.at(a)] = true;
       if (e.symbol == '~') {
@@ -227,37 +244,50 @@ void Level::setTag(const char &c, const char &a) {
   }
 }
 
-bool Level::tryMove(Entity &mover, int dr, int dc) {
+bool Level::tryMove(Entity& mover, int dr, int dc) {
   int nr = mover.pos.first + dr;
   int nc = mover.pos.second + dc;
 
-  if (nr < 0 || nr >= level.rows || nc < 0 || nc >= level.cols) return false;
+  if (nr < 0 || nr >= level.rows || nc < 0 || nc >= level.cols) {
+    return false;
+  }
 
   std::vector<Entity *> dest;
-  for (Entity &e : level.entities)
-    if (e.pos == std::make_pair(nr, nc)) dest.push_back(&e);
+  for (Entity& e : level.entities)
+    if (e.pos == std::make_pair(nr, nc)) {
+      dest.push_back(&e);
+    } 
 
   bool hayStopNoPush = false;
   bool hayPush = false;
   for (Entity *e : dest) {
-    if (e->tags["isPush"])
+    if (e->tags["isPush"]) {
       hayPush = true;
-    else if (e->tags["isStop"])
+    } else if (e->tags["isStop"]) {
       hayStopNoPush = true;
+    }
   }
-  if (hayStopNoPush && !hayPush) return false;
+
+  if (hayStopNoPush && !hayPush) {
+    return false;
+  }
 
   for (Entity *e : dest) {
-    if (!e->tags["isPush"]) continue;
-    if (!tryMove(*e, dr, dc)) return false;
+    if (!e->tags["isPush"]) {
+      continue;
+    }
+
+    if (!tryMove(*e, dr, dc)) {
+      return false;
+    }
   }
 
   mover.pos = {nr, nc};
   return true;
 }
 
-void Level::setSymbol(const char &old, const char &current) {
-  for (Entity &e : this->level.entities) {
+void Level::setSymbol(const char& old, const char& current) {
+  for (Entity& e : this->level.entities) {
     if (e.symbol == old) {
       e.type = entityString(current);
       e.symbol = current;
@@ -280,7 +310,7 @@ void Level::adjustToFitScreen() {
 }
 
 bool Level::isBlocked(int row, int col) {
-  for (const Entity &e : this->level.entities) {
+  for (const Entity& e : this->level.entities) {
     if (e.pos == std::make_pair(row, col)) {
       if (e.tags.count("isStop") && e.tags.at("isStop")) {
         return true;
@@ -292,31 +322,44 @@ bool Level::isBlocked(int row, int col) {
 
 bool Level::tryPush(int row, int col, int dx, int dy) {
   std::vector<Entity *> here;
-  for (Entity &e : level.entities)
-    if (e.pos == std::make_pair(row, col)) here.push_back(&e);
+  for (Entity& e : level.entities)
+    if (e.pos == std::make_pair(row, col)) {
+      here.push_back(&e);
+    } 
 
   bool hasPush = false;
   bool hasStopNoPush = false;
   for (Entity *e : here) {
-    if (e->tags["isPush"])
+    if (e->tags["isPush"]) {
       hasPush = true;
-    else if (e->tags["isStop"])
+    } else if (e->tags["isStop"]) {
       hasStopNoPush = true;
+    }
   }
 
-  if (hasStopNoPush && !hasPush) return false;
-  if (!hasPush) return true;
+  if (hasStopNoPush && !hasPush) {
+    return false;
+  }
+
+  if (!hasPush) {
+    return true;
+  } 
 
   int nextRow = row + dy;
   int nextCol = col + dx;
   if (nextRow < 0 || nextRow >= level.rows || nextCol < 0 ||
-    nextCol >= level.cols)
+    nextCol >= level.cols) {
+      return false;
+    }
+
+  if (!tryPush(nextRow, nextCol, dx, dy)) {
     return false;
+  } 
 
-  if (!tryPush(nextRow, nextCol, dx, dy)) return false;
-
-  for (Entity *e : here) {
-    if (!e->tags["isPush"]) continue;
+  for (Entity* e : here) {
+    if (!e->tags["isPush"]) {
+      continue;
+    }
     e->pos = {nextRow, nextCol};
   }
   return true;
@@ -348,7 +391,9 @@ GameState Level::handleInput() {
   }
 
   GameState result = GameState::playing;
-  if (dir.x == 0 && dir.y == 0) return result;
+  if (dir.x == 0 && dir.y == 0) {
+    return result;
+  } 
 
   int dx = static_cast<int>(dir.x);
   int dy = static_cast<int>(dir.y);
@@ -356,35 +401,43 @@ GameState Level::handleInput() {
   auto snapshotEntities = level.entities;
   bool didMove = false;
 
-  for (Entity &e : level.entities) {
-    if (!e.tags["isYou"]) continue;
+  for (Entity& e : level.entities) {
+    if (!e.tags["isYou"]) {
+      continue;
+    }
 
     int newRow = e.pos.first + dy;
     int newCol = e.pos.second + dx;
     if (newRow < 0 || newRow >= level.rows || newCol < 0 ||
-        newCol >= level.cols)
-      continue;
+        newCol >= level.cols) {
+          continue;
+        }
 
     std::vector<Entity *> dest;
-    for (Entity &o : level.entities)
-      if (o.pos == std::make_pair(newRow, newCol)) dest.push_back(&o);
+    for (Entity& o : level.entities)
+      if (o.pos == std::make_pair(newRow, newCol)) {
+        dest.push_back(&o);
+      } 
 
     bool hasPush = false, hasStopNoPush = false;
     for (Entity *o : dest) {
-      if (o->tags["isPush"])
+      if (o->tags["isPush"]) {
         hasPush = true;
-      else if (o->tags["isStop"])
+      } else if (o->tags["isStop"]) {
         hasStopNoPush = true;
+      }
     }
 
     bool canMove = !(hasStopNoPush && !hasPush);
-    if (canMove && hasPush && !tryPush(newRow, newCol, dx, dy)) canMove = false;
+    if (canMove && hasPush && !tryPush(newRow, newCol, dx, dy)) {
+      canMove = false;
+    }
 
     if (canMove) {
       e.pos = {newRow, newCol};
       didMove = true;
 
-      for (const Entity &ent : level.entities) {
+      for (const Entity& ent : level.entities) {
         if (ent.pos != e.pos) continue;
         if (ent.tags.count("isWin") && ent.tags.at("isWin")) {
           result = GameState::won;
@@ -402,7 +455,7 @@ GameState Level::handleInput() {
 
   bool theresIsYou = false;
 
-  for (Entity &e : level.entities) {
+  for (Entity& e : level.entities) {
     if (e.tags.count("isYou") && e.tags.at("isYou")) {
       theresIsYou = true;
       break;
@@ -458,7 +511,7 @@ void Level::processRemove() {
   }
 }
 
-void Level::updatePlayerSprite(const char &dir) {
+void Level::updatePlayerSprite(const char& dir) {
   std::string rule = "isYou";
   char currentAvatar = getCurrentPlayer();
   if (currentAvatar == BABA_LEFT || currentAvatar == BABA_UP ||
@@ -488,7 +541,7 @@ void Level::updatePlayerSprite(const char &dir) {
 char Level::getCurrentPlayer() {
   std::string rule = "isYou";
   char currentAvatar;
-  for (Entity &e : this->level.entities) {
+  for (Entity& e : this->level.entities) {
     if (e.tags[rule] == true) {
       currentAvatar = e.symbol;
       break;
