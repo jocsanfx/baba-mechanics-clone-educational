@@ -1,50 +1,50 @@
 #include "Utilities.hpp"
 
 char getSymbolForEntity(const std::string &type) {
-  if (type == "player") { 
-    return '*'; 
+  if (type == "player") {
+    return '*';
   }
-  if (type == "instruction") { 
-    return 'I'; 
+  if (type == "instruction") {
+    return 'I';
   }
-  if (type == "rock") { 
-    return '$'; 
+  if (type == "rock") {
+    return '$';
   }
-  if (type == "flag") { 
-    return '&'; 
+  if (type == "flag") {
+    return '&';
   }
-  if (type == "wall") { 
-    return '#'; 
+  if (type == "wall") {
+    return '#';
   }
-  if (type == "water") { 
-    return '~'; 
+  if (type == "water") {
+    return '~';
   }
-  if (type == "lava") { 
-    return '-'; 
+  if (type == "lava") {
+    return '-';
   }
-  if (type == "skull") { 
-    return '+'; 
+  if (type == "skull") {
+    return '+';
   }
-  if (type == "grass") { 
-    return 'h'; 
+  if (type == "grass") {
+    return 'h';
   }
-  if (type == "flower") { 
-    return 'f'; 
+  if (type == "flower") {
+    return 'f';
   }
-  if (type == "floor") { 
-    return 'Z'; 
+  if (type == "floor") {
+    return 'Z';
   }
-  if (type == "brick") { 
-    return 'b'; 
+  if (type == "brick") {
+    return 'b';
   }
-  if (type == "melt") { 
-    return 'M'; 
+  if (type == "melt") {
+    return 'M';
   }
-  if (type == "defeat") { 
-    return 'D'; 
+  if (type == "defeat") {
+    return 'D';
   }
-  if (type == "sink") { 
-    return 'K'; 
+  if (type == "sink") {
+    return 'K';
   }
   return '0';
 }

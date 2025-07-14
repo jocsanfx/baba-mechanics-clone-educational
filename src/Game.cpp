@@ -17,14 +17,13 @@ void Game::init() {
 
 void Game::run() {
   while (!WindowShouldClose()) {
-
     if (this->state == GameState::playing) {
       this->state = this->level.handleInput();
     }
 
     level.draw(state, this->level_counter);
 
-    if ((this->state == GameState::lost && IsKeyPressed(KEY_ENTER)) || 
+    if ((this->state == GameState::lost && IsKeyPressed(KEY_ENTER)) ||
       IsKeyPressed(KEY_R)) {
       this->level.loadLevel(this->level_counter);
       this->state = GameState::playing;
