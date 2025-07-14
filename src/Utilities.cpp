@@ -1,5 +1,14 @@
+// Copyright 2025 Jocsan Fernández <jocsan.fernandezsalas@ucr.ac.cr>
+// && Isaac Araya <isaac.arayaquesada@ucr.ac.cr>
+// && May Retana <may.retana@ucr.ac.cr>
 #include "Utilities.hpp"
 
+/**
+ * @brief Retorna el símbolo correspondiente al tipo textual de una entidad
+ *
+ * @param type Tipo de la entidad (por ejemplo: "player", "wall", etc.)
+ * @return Carácter que representa gráficamente a la entidad
+ */
 char getSymbolForEntity(const std::string &type) {
   if (type == "player") {
     return '*';
@@ -49,6 +58,15 @@ char getSymbolForEntity(const std::string &type) {
   return '0';
 }
 
+/**
+ * @brief Devuelve el tipo textual de una entidad dado su símbolo gráfico
+ *
+ * Esta función también incluye múltiples caracteres que corresponden a
+ * instrucciones del juego, y los agrupa bajo el tipo "instruction"
+ *
+ * @param c Carácter que representa una entidad en el nivel
+ * @return Tipo textual de la entidad (por ejemplo: "wall", "instruction")
+ */
 std::string entityString(char c) {
   switch (c) {
     case '#':
