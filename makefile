@@ -36,12 +36,13 @@ $(BUILD):
 run:
 	./$(BIN)/$(APPNAME) $(ARGS)
 
-asan: SFLAGS += -fsanitize=address
-asan: all
+asan:
+	$(MAKE) CC=gcc SFLAGS=-fsanitize=address clean all
+	./$(BIN)/$(APPNAME)
 
-msan: SFLAGS += -fsanitize=memory
-msan: XC = clang++
-msan: all
+masan:
+	$(MAKE) CC=clang SFLAGS=-fsanitize=address clean all
+	./$(BIN)/$(APPNAME)
 
 clean:
 	rm -rf $(BUILD) $(BIN)
