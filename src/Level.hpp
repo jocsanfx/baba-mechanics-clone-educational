@@ -96,8 +96,8 @@ class Level {
   /**
    * @brief Intenta mover una entidad en la dirección indicada
    * @param mover Referencia a la entidad a mover
-   * @param dr Delta en la fila
-   * @param dc Delta en la columna
+   * @param dr Dirección en la fila
+   * @param dc Dirección en la columna
    * @return true si el movimiento fue exitoso
    */
   bool tryMove(Entity& mover, int dr, int dc);
@@ -122,7 +122,8 @@ class Level {
   char getCurrentPlayer();
 
   /** @brief Ajusta el tamaño y posición del nivel para centrarse en la 
-   * pantalla */
+   * pantalla 
+   */
   void adjustToFitScreen();
 
   /**
