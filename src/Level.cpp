@@ -372,9 +372,9 @@ void Level::setTag(const char& c, const char& a) {
  * @return true Si el movimiento fue exitoso
  * @return false Si el movimiento fue bloqueado
  */
-bool Level::tryMove(Entity& mover, int dr, int dc) {
-  int nr = mover.pos.first + dr;
-  int nc = mover.pos.second + dc;
+bool Level::tryMove(Entity* mover, int dr, int dc) {
+  int nr = mover->pos.first + dr;
+  int nc = mover->pos.second + dc;
 
   if (nr < 0 || nr >= level.rows || nc < 0 || nc >= level.cols) {
     return false;
@@ -405,12 +405,12 @@ bool Level::tryMove(Entity& mover, int dr, int dc) {
       continue;
     }
 
-    if (!tryMove(*e, dr, dc)) {
+    if (!tryMove(e, dr, dc)) {
       return false;
     }
   }
 
-  mover.pos = {nr, nc};
+  mover->pos = {nr, nc};
   return true;
 }
 

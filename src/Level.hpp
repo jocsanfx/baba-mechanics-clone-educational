@@ -97,7 +97,7 @@ class Level {
    * @param dc Dirección en la columna
    * @return true si el movimiento fue exitoso
    */
-  bool tryMove(Entity& mover, int dr, int dc);
+  bool tryMove(Entity* mover, int dr, int dc);
 
   /**
    * @brief Dibuja todas las entidades que coincidan con el conjunto dado
