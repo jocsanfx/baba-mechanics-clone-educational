@@ -18,12 +18,6 @@ FOBJECT := $(patsubst $(SRC)/%.cpp,$(BUILD)/%.o,$(FSOURCE))
 
 .PHONY: all clean run asan msan
 
-
-lint:
-	cppcheck --enable=all --inconclusive --std=c++17 --quiet \
-	--suppress=missingIncludeSystem src
-
-
 all: $(BIN)/$(APPNAME)
 
 $(BIN)/$(APPNAME): $(FOBJECT) | $(BIN)
@@ -32,6 +26,9 @@ $(BIN)/$(APPNAME): $(FOBJECT) | $(BIN)
 $(BUILD)/%.o: $(SRC)/%.cpp | $(BUILD)
 	mkdir -p $(@D)
 	$(XC) $(WFLAGS) $(SFLAGS) $(INCLUDES) -c -g $< -o $@
+
+lint:
+	cpplint --filter=-build/header_guard,-build/include_subdir,-readability/casting,-runtime/int src/*
 
 $(BIN):
 	mkdir -p $@
