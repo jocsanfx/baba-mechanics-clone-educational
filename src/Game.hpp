@@ -20,7 +20,7 @@ class Game {
   // Título de la ventana del juego
   std::string title = "";
   // Objeto que representa el nivel actual
-  Level level;
+  Level level = {};
   // Ancho de la ventana
   int window_width = DEFAULT_INIT_SIZE;
   // Alto de la ventana

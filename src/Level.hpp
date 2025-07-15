@@ -36,8 +36,8 @@ class Level {
   float offsetY = 0;
   friend class Game;
 
-  TileData tiles;
-  LevelData level;
+  TileData tiles = {};
+  LevelData level = {};
 
   std::stack<std::vector<Entity>> history;
 
@@ -162,7 +162,7 @@ class Level {
    * @param c Columna de la celda
    * @return Vector de caracteres presentes en la celda
    */
-  std::vector<char> charsAt(int r, int c);
+  std::vector<char> charsAt(int row, int col) const;
 };
 
 #endif  // LEVEL_HPP

@@ -129,9 +129,8 @@ void Level::drawEntities() {
   drawByLayer(backgrounds, currentAvatar);
   // Dibuja las instrucciones (con animación)
   for (const Entity& e : this->level.entities) {
-    int id = 0;
     if (e.type == "instruction") {
-      id = this->level.tiles_id[e.symbol];
+      int id = this->level.tiles_id[e.symbol];
       id += this->count;
       this->drawTail(id, e.pos.first, e.pos.second);
     }
@@ -157,9 +156,8 @@ void Level::drawEntities() {
  */
 void Level::drawByLayer(const std::set<char>& conjunct, const char& player) {
   for (const Entity& e : this->level.entities) {
-    int id = 0;
     if (e.symbol != player && conjunct.count(e.symbol) == 1) {
-      id = this->level.tiles_id[e.symbol];
+      int id = this->level.tiles_id[e.symbol];
       id += this->count;
       this->drawTail(id, e.pos.first, e.pos.second);
     }
@@ -176,9 +174,8 @@ void Level::drawByLayer(const std::set<char>& conjunct, const char& player) {
  */
 void Level::drawByLayer(const char& symbol) {
   for (const Entity& e : this->level.entities) {
-    int id = 0;
     if (e.symbol == symbol) {
-      id = this->level.tiles_id[e.symbol];
+      int id = this->level.tiles_id[e.symbol];
       id += this->count;
       this->drawTail(id, e.pos.first, e.pos.second);
     }
@@ -327,7 +324,7 @@ void Level::handleRules() {
  * @param col Columna a consultar
  * @return std::vector<char> Vector con los símbolos encontrados en la celda
  */
-std::vector<char> Level::charsAt(int row, int col) {
+std::vector<char> Level::charsAt(int row, int col) const {
   std::vector<char> vec;
   for (const Entity& ent : this->level.entities)
     if (ent.pos == std::make_pair(row, col)) {
@@ -691,7 +688,6 @@ void Level::processRemove() {
  * 's' (abajo), 'd' (derecha)
  */
 void Level::updatePlayerSprite(const char& dir) {
-  std::string rule = "isYou";
   char currentAvatar = getCurrentPlayer();
   if (currentAvatar == BABA_LEFT || currentAvatar == BABA_UP ||
       currentAvatar == BABA_RIGHT || currentAvatar == BABA_DOWN) {

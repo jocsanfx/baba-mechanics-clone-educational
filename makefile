@@ -18,8 +18,11 @@ FOBJECT := $(patsubst $(SRC)/%.cpp,$(BUILD)/%.o,$(FSOURCE))
 
 .PHONY: all clean run asan msan
 
+
 lint:
-	cppcheck --enable=all --inconclusive --std=c++17 --language=c++ --quiet src
+	cppcheck --enable=all --inconclusive --std=c++17 --quiet \
+	--suppress=missingIncludeSystem src
+
 
 all: $(BIN)/$(APPNAME)
 
