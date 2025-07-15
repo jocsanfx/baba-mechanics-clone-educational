@@ -36,8 +36,8 @@ class Level {
   float offsetY = 0;
   friend class Game;
 
-  TileData tiles;
-  LevelData level;
+  TileData tiles = {};
+  LevelData level = {};
 
   std::stack<std::vector<Entity>> history;
 
@@ -66,9 +66,6 @@ class Level {
    * 
    */
   void update();
-
-  /** @brief Deshace el último movimiento realizado */
-  void undo();
 
   /**
    * @brief Dibuja el estado actual del juego en pantalla
@@ -127,14 +124,6 @@ class Level {
   void adjustToFitScreen();
 
   /**
-   * @brief Indica si una celda está bloqueada por una entidad con "isStop"
-   * @param row Fila a revisar
-   * @param col Columna a revisar
-   * @return true si la celda está bloqueada
-   */
-  bool isBlocked(int row, int col);
-
-  /**
    * @brief Intenta empujar entidades en una dirección específica
    * @param row Fila inicial
    * @param col Columna inicial
@@ -173,7 +162,7 @@ class Level {
    * @param c Columna de la celda
    * @return Vector de caracteres presentes en la celda
    */
-  std::vector<char> charsAt(int r, int c);
+  std::vector<char> charsAt(int row, int col) const;
 };
 
 #endif  // LEVEL_HPP

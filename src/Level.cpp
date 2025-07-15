@@ -129,9 +129,8 @@ void Level::drawEntities() {
   drawByLayer(backgrounds, currentAvatar);
   // Dibuja las instrucciones (con animación)
   for (const Entity& e : this->level.entities) {
-    int id = 0;
     if (e.type == "instruction") {
-      id = this->level.tiles_id[e.symbol];
+      int id = this->level.tiles_id[e.symbol];
       id += this->count;
       this->drawTail(id, e.pos.first, e.pos.second);
     }
@@ -157,9 +156,8 @@ void Level::drawEntities() {
  */
 void Level::drawByLayer(const std::set<char>& conjunct, const char& player) {
   for (const Entity& e : this->level.entities) {
-    int id = 0;
     if (e.symbol != player && conjunct.count(e.symbol) == 1) {
-      id = this->level.tiles_id[e.symbol];
+      int id = this->level.tiles_id[e.symbol];
       id += this->count;
       this->drawTail(id, e.pos.first, e.pos.second);
     }
@@ -176,27 +174,11 @@ void Level::drawByLayer(const std::set<char>& conjunct, const char& player) {
  */
 void Level::drawByLayer(const char& symbol) {
   for (const Entity& e : this->level.entities) {
-    int id = 0;
     if (e.symbol == symbol) {
-      id = this->level.tiles_id[e.symbol];
+      int id = this->level.tiles_id[e.symbol];
       id += this->count;
       this->drawTail(id, e.pos.first, e.pos.second);
     }
-  }
-}
-
-/**
- * @brief Revierte el último movimiento realizado por el jugador
- *
- * Recupera el estado anterior de las entidades desde la pila 'history', 
- * si no está vacía
- * Esto permite implementar una funcionalidad de "deshacer"
- */
-void Level::undo() {
-  if (!this->history.empty()) {
-    auto prevEntities = this->history.top();
-    this->level.entities = prevEntities;
-    this->history.pop();
   }
 }
 
@@ -342,7 +324,7 @@ void Level::handleRules() {
  * @param col Columna a consultar
  * @return std::vector<char> Vector con los símbolos encontrados en la celda
  */
-std::vector<char> Level::charsAt(int row, int col) {
+std::vector<char> Level::charsAt(int row, int col) const {
   std::vector<char> vec;
   for (const Entity& ent : this->level.entities)
     if (ent.pos == std::make_pair(row, col)) {
@@ -469,30 +451,6 @@ void Level::adjustToFitScreen() {
   float totalMapHeight = this->level.rows * this->level.cell_heigth;
   this->offsetX = (GetScreenWidth() - totalMapWidth) / 2.0f;
   this->offsetY = (GetScreenHeight() - totalMapHeight) / 2.0f;
-}
-
-/**
- * @brief Verifica si una celda está bloqueada por una entidad con la 
- * etiqueta "isStop"
- *
- * Esta función revisa si alguna entidad en la posición dada tiene 
- * la etiqueta "isStop" activada. En ese caso, se considera que 
- * el movimiento hacia esa celda está bloqueado
- *
- * @param row Fila de la celda a verificar
- * @param col Columna de la celda a verificar
- * @return true Si la celda está bloqueada
- * @return false Si no hay bloqueo
- */
-bool Level::isBlocked(int row, int col) {
-  for (const Entity& e : this->level.entities) {
-    if (e.pos == std::make_pair(row, col)) {
-      if (e.tags.count("isStop") && e.tags.at("isStop")) {
-        return true;
-      }
-    }
-  }
-  return false;
 }
 
 /**
@@ -730,7 +688,6 @@ void Level::processRemove() {
  * 's' (abajo), 'd' (derecha)
  */
 void Level::updatePlayerSprite(const char& dir) {
-  std::string rule = "isYou";
   char currentAvatar = getCurrentPlayer();
   if (currentAvatar == BABA_LEFT || currentAvatar == BABA_UP ||
       currentAvatar == BABA_RIGHT || currentAvatar == BABA_DOWN) {

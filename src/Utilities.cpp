@@ -4,61 +4,6 @@
 #include "Utilities.hpp"
 
 /**
- * @brief Retorna el símbolo correspondiente al tipo textual de una entidad
- *
- * @param type Tipo de la entidad (por ejemplo: "player", "wall", etc.)
- * @return Carácter que representa gráficamente a la entidad
- */
-char getSymbolForEntity(const std::string &type) {
-  if (type == "player") {
-    return '*';
-  }
-  if (type == "instruction") {
-    return 'I';
-  }
-  if (type == "rock") {
-    return '$';
-  }
-  if (type == "flag") {
-    return '&';
-  }
-  if (type == "wall") {
-    return '#';
-  }
-  if (type == "water") {
-    return '~';
-  }
-  if (type == "lava") {
-    return '-';
-  }
-  if (type == "skull") {
-    return '+';
-  }
-  if (type == "grass") {
-    return 'h';
-  }
-  if (type == "flower") {
-    return 'f';
-  }
-  if (type == "floor") {
-    return 'Z';
-  }
-  if (type == "brick") {
-    return 'b';
-  }
-  if (type == "melt") {
-    return 'M';
-  }
-  if (type == "defeat") {
-    return 'D';
-  }
-  if (type == "sink") {
-    return 'K';
-  }
-  return '0';
-}
-
-/**
  * @brief Devuelve el tipo textual de una entidad dado su símbolo gráfico
  *
  * Esta función también incluye múltiples caracteres que corresponden a
