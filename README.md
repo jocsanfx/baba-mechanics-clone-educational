@@ -1,84 +1,226 @@
-# Directorio del proyecto programado 3
+# Baba Mechanics Clone Educational
 
-## Descripción del directorio
+[![C++](https://img.shields.io/badge/C%2B%2B-00599C?style=for-the-badge&logo=c%2B%2B&logoColor=white)](https://isocpp.org/)
+[![raylib](https://img.shields.io/badge/raylib-000000?style=for-the-badge&logo=raylib&logoColor=white)](https://www.raylib.com/)
+[![GNU Make](https://img.shields.io/badge/GNU%20Make-A42E2B?style=for-the-badge&logo=gnu&logoColor=white)](https://www.gnu.org/software/make/)
+[![Doxygen](https://img.shields.io/badge/Doxygen-2C4AA8?style=for-the-badge&logo=doxygen&logoColor=white)](https://www.doxygen.nl/)
+[![cpplint](https://img.shields.io/badge/code%20style-cpplint-4C8CBF?style=for-the-badge)](https://github.com/cpplint/cpplint)
 
-Directorio dentro del repositorio de control de versiones del curso CI-0113
-para el tercer proyecto de Programación 2: BABA IS YOU.
+## Project description
 
-## Descripción del problema
+This repository contains a playable C++ and raylib implementation of the core
+mechanics behind **Baba Is You**. The current build loads eight text-based
+levels, converts their symbols into runtime entities, evaluates rules formed by
+movable word blocks, resolves movement and collisions, maintains undo history,
+and renders the result from a sprite sheet.
 
-Baba is You es un juego de rompecabezas donde las reglas del juego son manipulables como objetos dentro del nivel. El jugador controla al personaje Baba (u otros objetos, dependiendo de las reglas) y debe alcanzar la meta normalmente representada por un objeto Flag. La mecánica central es que las reglas (ej. "Baba is You", "Wall is Stop", "Flag is Win") están escritas en bloques de texto que pueden ser empujados, modificando así las reglas del nivel en tiempo real.
+The implementation is intentionally focused: it recreates the rule-driven
+puzzle loop represented by the included levels rather than attempting to be a
+complete port of every system in the commercial game. The project is organized
+as a standalone software engineering codebase, with separate components for
+application flow, level simulation, shared models, configuration, and symbol
+translation.
 
-El desafío principal es diseñar un motor de juego que:
+This is a non-profit educational replica, created out of admiration for the
+original game's design and technical creativity. Its source code was
+independently implemented; the only material carried over from the original is
+its visual assets and level designs, used solely for study and demonstration.
+This project is not affiliated with or endorsed by Arvi Teikari or Hempuli Oy,
+has no commercial purpose, and is not intended to replace the original game.
 
-1. Interprete las reglas dinámicamente.
-2. Permita la interacción con bloques de texto y objetos.
-3. Valide condiciones de victoria/derrota según las reglas activas.
+To experience the complete work and support its creator, please purchase the
+[official game on Steam](https://store.steampowered.com/app/736260/Baba_Is_You/).
 
-Ejemplo de jugabilidad en: [Is Baba is You for You?](https://www.youtube.com/shorts/_D46WqC7tKg)
+## Original game credit
 
-## Manual del desarrollador
+*Baba Is You* was created by **Arvi Teikari (Hempuli)**. The game is developed
+and published by **Hempuli Oy**.
 
-El proyecto está dividido en 2 carpetas principales:
+All credit for the original concept, game design, characters, artwork, visual
+assets, and level designs belongs to the original creator and their respective
+rights holders.
 
-1. **La carpeta `assets`**: contiene las subcarpetas `data` e `images`. En `data` se almacenan los primeros 8 niveles del juego, modelados en formato `.txt`. Por otro lado, la carpeta `images` contiene `baba.png`, una imagen compuesta que muestra 3 sprites de cada elemento del juego, pensada para facilitar la animación de los objetos.
+- [Official Baba Is You website](https://www.hempuli.com/Baba/)
+- [Official Baba Is You Steam page](https://store.steampowered.com/app/736260/Baba_Is_You/)
 
-   ![Sprites del juego](assets/images/baba.png)
+## Technology stack
 
-2. **La carpeta `src`**: contiene todos los archivos fuente del proyecto en c++. Aquí se encuentran definidas las clases principales del juego como Game, Level, Utilities, Structures y Config.
-
-   - `main.cpp`: contiene el punto de entrada del programa.
-   - `Game.cpp` y `Game.hpp`: definen la lógica principal del ciclo de juego.  
-   - `Level.cpp` y `Level.hpp`: se encargan de la carga, gestión y representación de los niveles.  
-   - `Utilities.cpp` y `Utilities.hpp`: agrupan funciones auxiliares y herramientas comunes.  
-   - `Structures.hpp`: define estructuras de datos compartidas entre los distintos componentes.  
-   - `Config.hpp`: centraliza configuraciones globales como el tamaño de la ventana y los FPS.
-
-## Compilación y ejecución del juego
-
-El proyecto posee un makefile que ofrece varios comandos para permitir una compilación y ejecución más simple, basta con realizar el siguiente comando desde la raiz del proyecto:
-
-`make clean; make; make run`
-
-Esta instrucción va a desplegar la ventana donde se podrá jugar el Baba is You
-
-Además se puede realizar la verificación del linter mediante el comando
-`make lint`
-
-## Manual de usuario
-
-| **Teclas para jugar** | **¿Qué hacen?** |
+| Technology | Role in the project |
 |---|---|
-| **Tecla de dirección: arriba**  | Mueve el personaje hacia el norte en el mapa.  |
-| **Tecla de dirección: abajo** | Mueve el personaje hacia el sur en el mapa. |
-| **Tecla de dirección: derecha** | Mueve el personaje hacia el este en el mapa. |
-| **Tecla de dirección: izquierda** | Mueve el personaje hacia el oeste en el mapa. |
-| **Tecla "R"** | Reinicia la partida completamente. |
-| **Tecla "Z"** | Deshace el último movimiento dado por el jugador. |
+| C++ | Entity modeling, rule evaluation, movement, and game-state logic |
+| raylib | Window management, input handling, textures, and 2D rendering |
+| GNU Make | Source discovery, compilation, linking, execution, and sanitizer targets |
+| Doxygen | Documentation configuration and API-style source comments |
+| cpplint | Automated C++ style validation through `make lint` |
 
-El jugador será capaz de mover objetos a su alrededor en las cuatro direcciones, bajo ciertas condiciones las cuales a su vez pueden ser construidas por bloques de reglas. El formato que estas deben seguir es el siguiente: **objeto**, **is**, **verbo**. Como por ejemplo "Rock is push", que permite empujar una roca.
+## Implemented logic
 
-   ![Regla de Ejemplo](imagenesReadme/reglaEjemplo.png)
+### Level loading and entity model
 
-Además, es posible destruir reglas de objetos que bloquean ciertas acciones al jugador. Por ejemplo, en la regla "Wall is Stop", el jugador estará encerrado. Mas si se desarma esa regla, será posible atravesar las paredes.
+Each level begins with its row and column count followed by a character grid.
+`Level::loadLevel` reads that grid and creates one `Entity` for every recognized
+symbol. An entity stores a unique ID, grid position, semantic type, display
+symbol, and a map of active behavior tags. A separate tile-ID file maps symbols
+to sprite-sheet positions.
 
-   ![Pared de Ejemplo](imagenesReadme/paredEjemplo.png)
+### Dynamic rule evaluation
 
-El juego se pierde si la regla que le da identidad al jugador es desarmada. Es decir, si se juega como Baba y se rompe la instrucción "Baba is You" es como si se autoeliminara.
+`Level::handleRules` rebuilds the active rule state whenever a level is loaded
+or a successful move changes the board:
 
-![BabaEJ](imagenesReadme/BabaEj.png)
-![Perder](imagenesReadme/perderEjemplo.png)
+1. Existing behavior tags are reset, and instruction blocks become pushable.
+2. Every `IS` block is inspected horizontally and vertically.
+3. The cells immediately before and after `IS` are resolved through the noun
+   and action dictionaries.
+4. A noun-property rule, such as `BABA IS YOU`, activates a behavior tag on all
+   matching entities.
+5. A noun-noun rule, such as `WALL IS FLAG`, changes the matching entities'
+   type and symbol at runtime.
 
-El juego se gana si se alcanza el objeto del que haya una regla con el verbo ganar. Es posible construir esta instrucción a beneficio.
+The current simulation evaluates `IS YOU`, `IS PUSH`, `IS STOP`, `IS WIN`, and
+`IS LOSE` behaviors. It also uses an internal `isBreak` tag for destructive
+collisions.
 
-![BabaWin](imagenesReadme/BabaWin.png)
-![Ganar](imagenesReadme/ganarEjemplo.png)
+### Movement and recursive pushing
 
-A partir de estas mecánicas, la resolución de los niveles queda a creatividad del jugador, donde es posible modificar reglas a conveniencia para ganar.
+Keyboard input is converted into a row and column offset. For each entity with
+the `isYou` tag, the level examines every entity in the destination cell. A cell
+with `isStop` and no pushable entity blocks movement. Pushable entities are
+passed to `Level::tryPush`, which recursively validates the next cell before
+moving an entire chain. The operation is rejected if any part of the chain
+reaches the board boundary or a cell that resolves as blocked.
 
-## Ejemplo de nivel modelado en .txt
+Before movement, the entity collection is copied as a snapshot. A successful
+move stores that snapshot in a stack, allowing `Z` to restore the previous
+board state.
+
+### Interaction and state resolution
+
+After movement, `Level::processRemove` checks entities that share a grid
+position. It removes a player entity that touches an `isLose` entity and
+resolves destructive `isBreak` collisions. The level enters the won state when
+an `isYou` entity reaches an `isWin` entity, or the lost state when no `isYou`
+entity remains.
+
+The `Game` class owns the outer state machine. It keeps the application in one
+of three states—`playing`, `won`, or `lost`—and controls level restarts and
+progression to the next level.
+
+### Rendering pipeline
+
+Rendering is separated from rule evaluation. The current board is drawn in
+layers: backgrounds, animated instruction blocks, interactive objects, the
+goal flag, and finally the player-controlled entity. A frame counter cycles
+through three adjacent sprite IDs to animate the instruction tiles. Cell size
+and map offsets are calculated from the window dimensions so each level remains
+centered on screen.
+
+### Runtime flow
+
+```mermaid
+flowchart TD
+    A[Initialize window and textures] --> B[Load text level]
+    B --> C[Create entities and tile mappings]
+    C --> D[Evaluate horizontal and vertical rules]
+    D --> E[Read keyboard input]
+    E --> F{Movement requested?}
+    F -- No --> J[Render current game state]
+    F -- Yes --> G[Resolve blocking and recursive pushes]
+    G --> H[Resolve collisions and win or loss state]
+    H --> I[Store history and rebuild active rules]
+    I --> J
+    J --> E
+```
+
+## Project structure
+
+```text
+.
+├── assets/
+│   ├── data/           # Level layouts and tile identifiers
+│   ├── images/         # Sprite sheet used by the game
+│   └── readmeImages/   # Images used by this document
+├── src/
+│   ├── config/         # Global configuration and constants
+│   ├── game/           # Application lifecycle and main game loop
+│   ├── level/          # Level loading, rules, movement, and rendering
+│   ├── models/         # Shared data structures
+│   ├── utilities/      # Entity and symbol utilities
+│   └── main.cpp        # Program entry point
+├── Doxyfile
+└── makefile
+```
+
+| Component | Responsibility |
+|---|---|
+| `game` | Window lifecycle, top-level loop, and transitions between game states |
+| `level` | Level parsing, rule evaluation, movement, interactions, history, and rendering |
+| `models` | Entity, level, and sprite-sheet data structures |
+| `utilities` | Translation from level characters to entity types and rule dictionaries |
+| `config` | Shared constants, asset paths, display values, and state definitions |
+
+## Building and running
+
+The project requires a C++ compiler, GNU Make, raylib, and the native libraries
+listed in the Makefile.
+
+From the repository root, build and run the game with:
 
 ```bash
+make clean
+make
+make run
+```
+
+Run the configured C++ linter with:
+
+```bash
+make lint
+```
+
+## Controls
+
+| Key | Action |
+|---|---|
+| Arrow Up | Move north |
+| Arrow Down | Move south |
+| Arrow Right | Move east |
+| Arrow Left | Move west |
+| `R` | Restart the current level |
+| `Z` | Undo the last movement |
+
+## Gameplay
+
+Rules follow the structure **subject**, **IS**, **property or object**. For
+example, `ROCK IS PUSH` allows rocks to be pushed. Because rule blocks are
+physical objects, moving one block can activate, disable, or transform a rule
+while the level is being played.
+
+![Example rule](assets/readmeImages/ruleExample.png)
+
+A blocking rule can be dismantled to change navigation. If `WALL IS STOP` is
+active, walls prevent movement; breaking the statement allows entities to pass
+through them.
+
+![Example wall rule](assets/readmeImages/wallExample.png)
+
+The game enters a loss state when no entity retains the `IS YOU` property.
+
+![Baba example](assets/readmeImages/BabaExample.png)
+![Loss example](assets/readmeImages/lossExample.png)
+
+A level is won when a player-controlled entity reaches an entity with the
+`IS WIN` property.
+
+![Baba reaching the objective](assets/readmeImages/BabaWin.png)
+![Win example](assets/readmeImages/winExample.png)
+
+## Text-based level format
+
+Levels are stored as text grids. The first line defines the grid dimensions;
+each following character represents an entity, instruction, or empty cell.
+
+```text
 16 22
 BW#0000000000000h00000
 II#0h00########0h00000
@@ -98,32 +240,17 @@ h000####~~~#######0h00
 0000000000000000000000
 ```
 
-## Ejemplo visual del nivel modelado
+![Rendered level example](assets/readmeImages/levelExample.png)
 
-![Pared de Ejemplo](imagenesReadme/nivelEjemplo.png)
+## Contributors
 
-## Créditos
+- **Jocsan Fernández** — [jocsan.fernandezsalas@ucr.ac.cr](mailto:jocsan.fernandezsalas@ucr.ac.cr)
+- **Isaac Araya** — [isaac.arayaquesada@ucr.ac.cr](mailto:isaac.arayaquesada@ucr.ac.cr)
+- **May Retana** — [may.retana@ucr.ac.cr](mailto:may.retana@ucr.ac.cr)
 
-- **Nombre:** Jocsan Fernández
-- **Carnet:** C4F122
-- **Contacto:** [jocsan.fernandezsalas at ucr.ac.cr](jocsan.fernandezsalas@ucr.ac.cr)
+## Disclaimer
 
----
-
-- **Nombre:** Isaac Araya
-- **Carnet:** C4C567
-- **Contacto** [isaac.arayaquesada at ucr.ac.cr](isaac.arayaquesada@ucr.ac.cr)
-
----
-
-- **Nombre:** May Retana
-- **Carnet:** C16409
-- **Contacto** [may.retana at ucr.ac.cr](may.retana@ucr.ac.cr)
-
----
-
-- **Ciclo** I-2025
-
-## Referencias
-
-Baba is You [Baba is Wiki](https://babaiswiki.fandom.com/wiki/Baba_Is_You_Wiki)
+This repository is maintained strictly as a non-profit educational and
+technical study. *Baba Is You* and all original material referenced or used by
+this replica remain the property of their respective creator and rights
+holders. No endorsement or official association is implied.
