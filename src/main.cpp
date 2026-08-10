@@ -3,17 +3,17 @@
 // && May Retana <may.retana@ucr.ac.cr>
 #include <iostream>
 
-#include "Game.hpp"
+#include "game/Game.hpp"
 
 /**
- * @brief Función principal del programa
+ * @brief Main program function
  *
- * Inicia el ciclo de vida del objeto Game:
- * - Inicializa recursos y configuración
- * - Ejecuta el bucle principal
- * - Libera los recursos utilizados
+ * Starts the Game object's lifecycle:
+ * - Initializes resources and configuration
+ * - Runs the main loop
+ * - Releases the resources used
  *
- * @return int Código de salida del programa
+ * @return int Program exit code
  */
 int main() {
   Game g;

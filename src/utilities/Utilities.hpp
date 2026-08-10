@@ -8,20 +8,20 @@
 #include <set>
 #include <map>
 #include <vector>
-#include "Config.hpp"
+#include "config/Config.hpp"
 
 /**
- * @brief Devuelve el tipo textual asociado a un símbolo de entidad
+ * @brief Returns the text type associated with an entity symbol
  *
- * @param c Símbolo gráfico de la entidad
- * @return Tipo textual de la entidad (por ejemplo, "wall", "instruction")
+ * @param c Graphical symbol of the entity
+ * @return Entity type as text (for example, "wall" or "instruction")
  */
 std::string entityString(char c);
 
 /**
- * @brief Diccionario que asocia letras (instrucciones) con símbolos de entidades
+ * @brief Dictionary that associates letters (instructions) with entity symbols
  * 
- * Ejemplo: 'B' representa la instrucción para que '*' sea afectado
+ * Example: 'B' represents the instruction that affects '*'
  */
 inline const std::map<char, char> relation {
   {'B', '*'},
@@ -35,9 +35,9 @@ inline const std::map<char, char> relation {
 };
 
 /**
- * @brief Diccionario de acciones asociadas a caracteres de instrucción.
+ * @brief Dictionary of actions associated with instruction characters.
  * 
- * Las acciones definen comportamientos como "isPush", "isWin", etc.
+ * Actions define behaviors such as "isPush" and "isWin".
  */
 inline const std::map<char, std::string> action {
   {'N', "isWin"},
@@ -52,16 +52,16 @@ inline const std::map<char, std::string> action {
 };
 
 /**
- * @brief Conjunto de símbolos que se consideran fondos o superficies
+ * @brief Set of symbols considered backgrounds or surfaces
  * 
- * Se renderizan al fondo del mapa antes de dibujar objetos
+ * They are rendered at the back of the map before objects are drawn
  */
 inline const std::set<char> backgrounds{'~', 'Z', 'h', 'b', '#'};
 
 /**
- * @brief Conjunto de símbolos válidos para objetos interactivos o visibles
+ * @brief Set of valid symbols for interactive or visible objects
  * 
- * Incluye jugador, obstáculos, enemigos, etc
+ * Includes the player, obstacles, enemies, and so on
  */
 inline const std::set<char> valid_objects{'*', '$', '+', '-', 'f', 'x'
   , 'y', 'z', '0'};

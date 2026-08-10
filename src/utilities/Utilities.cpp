@@ -1,16 +1,16 @@
 // Copyright 2025 Jocsan Fernández <jocsan.fernandezsalas@ucr.ac.cr>
 // && Isaac Araya <isaac.arayaquesada@ucr.ac.cr>
 // && May Retana <may.retana@ucr.ac.cr>
-#include "Utilities.hpp"
+#include "utilities/Utilities.hpp"
 
 /**
- * @brief Devuelve el tipo textual de una entidad dado su símbolo gráfico
+ * @brief Returns an entity's text type given its graphical symbol
  *
- * Esta función también incluye múltiples caracteres que corresponden a
- * instrucciones del juego, y los agrupa bajo el tipo "instruction"
+ * This function also includes multiple characters that correspond to game
+ * instructions and groups them under the "instruction" type
  *
- * @param c Carácter que representa una entidad en el nivel
- * @return Tipo textual de la entidad (por ejemplo: "wall", "instruction")
+ * @param c Character representing an entity in the level
+ * @return Entity type as text (for example, "wall" or "instruction")
  */
 std::string entityString(char c) {
   switch (c) {

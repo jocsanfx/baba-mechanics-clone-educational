@@ -2,14 +2,14 @@
 // && Isaac Araya <isaac.arayaquesada@ucr.ac.cr>
 // && May Retana <may.retana@ucr.ac.cr>
 
-// Archivo principal de ejecución del juego
-// Contiene la implementación de los métodos de la clase Game
+// Main game execution file
+// Contains the implementation of the Game class methods
 
-#include "Game.hpp"
-#include "Config.hpp"
+#include "game/Game.hpp"
+#include "config/Config.hpp"
 
 /**
- * @brief Inicializa la ventana, el FPS y carga el primer nivel.
+ * @brief Initializes the window and FPS, then loads the first level.
  */
 void Game::init() {
   this->title = GAME_TITLE;
@@ -20,17 +20,17 @@ void Game::init() {
   InitWindow(this->window_width, this->window_height, this->title.c_str());
   SetTargetFPS(this->fps);
 
-  // Carga texturas y nivel inicial
+  // Load textures and the initial level
   this->level.loadTextures();
   this->level.loadLevel(this->level_counter);
   this->level.adjustToFitScreen();
 }
 
 /**
- * @brief Bucle principal del juego.
+ * @brief Main game loop.
  * 
- * Maneja entradas del usuario, renderiza el nivel, y cambia entre estados 
- * de juego: jugando, ganado y perdido.
+ * Handles user input, renders the level, and switches between the playing,
+ * won, and lost game states.
  */
 void Game::run() {
   while (!WindowShouldClose()) {
@@ -38,10 +38,10 @@ void Game::run() {
       this->state = this->level.handleInput();
     }
 
-    // Dibuja el estado actual del nivel
+    // Draw the current level state
     level.draw(state, this->level_counter);
 
-    // Reinicia el nivel actual si el jugador ha perdido y presiona Enter o R
+    // Restart the current level if the player lost and presses Enter or R
     if ((this->state == GameState::lost && IsKeyPressed(KEY_ENTER)) ||
       IsKeyPressed(KEY_R)) {
       this->level.loadLevel(this->level_counter);
@@ -59,7 +59,7 @@ void Game::run() {
 }
 
 /**
- * @brief Libera recursos y cierra la ventana del juego.
+ * @brief Releases resources and closes the game window.
  */
 void Game::destroy() {
   UnloadTexture(this->level.tiles.texture);
