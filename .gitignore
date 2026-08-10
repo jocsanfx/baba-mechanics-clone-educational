@@ -3,7 +3,8 @@
 *.build
 build/
 bin/
-doc/
+# Doxygen-generated documentation (OUTPUT_DIRECTORY in Doxyfile)
+/doc/
 .vscode/
 *.json
 /makefile
