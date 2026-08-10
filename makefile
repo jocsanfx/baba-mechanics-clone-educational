@@ -1,4 +1,4 @@
-# Carpetas
+# Directories
 BUILD := build
 BIN := bin
 SRC := src
@@ -8,15 +8,17 @@ INCLUDE := include
 APPNAME := program
 XC := g++
 WFLAGS := -Wall -Wextra
-INCLUDES := -I$(INCLUDE)
+INCLUDES := -I$(INCLUDE) -I$(SRC)
 LIBS := -lraylib -lGL -lm -lpthread -ldl -lrt -lX11 -lwebpdemux -lwebp
 SFLAGS := 
 
-# Búsqueda de archivos
+# File discovery
 FSOURCE := $(wildcard $(SRC)/*.cpp $(SRC)/*/*.cpp)
 FOBJECT := $(patsubst $(SRC)/%.cpp,$(BUILD)/%.o,$(FSOURCE))
+FLINT := $(wildcard $(SRC)/*.cpp $(SRC)/*.hpp \
+	$(SRC)/*/*.cpp $(SRC)/*/*.hpp)
 
-.PHONY: all clean run asan msan
+.PHONY: all clean run lint asan msan
 
 all: $(BIN)/$(APPNAME)
 
@@ -28,7 +30,7 @@ $(BUILD)/%.o: $(SRC)/%.cpp | $(BUILD)
 	$(XC) $(WFLAGS) $(SFLAGS) $(INCLUDES) -c -g $< -o $@
 
 lint:
-	cpplint --filter=-build/header_guard,-build/include_subdir,-readability/casting,-runtime/int src/*
+	cpplint --filter=-build/header_guard,-build/include_subdir,-readability/casting,-runtime/int $(FLINT)
 
 $(BIN):
 	mkdir -p $@
